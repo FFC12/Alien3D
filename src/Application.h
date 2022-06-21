@@ -60,11 +60,12 @@ public:
 
     void start(const std::function<void()> &initCallback, const std::function<void()> &updateCallback) {
 #ifdef LIB_GLFW
-        m_Camera.setWindowSize(WIDTH,HEIGHT);
+        Camera.setWindowSize(WIDTH, HEIGHT);
         initCallback();
         glEnable(GL_DEPTH_TEST);
 
         static float lastFrame = 0.0f;
+        bool mouseFlag = false, keyboardFlag = false;
         while (!m_ShouldClose && !glfwWindowShouldClose(m_Window)) {
             // TODO: Make changes (TAO etc.)
             // Calculating the deltatime as simple as possible.
@@ -73,14 +74,21 @@ public:
             lastFrame = currentFrame;
 
             // World camera input handling..
-            mouseInputHandling();
-            keyboardInputHandling();
-            m_Camera.cameraScrollEvent(m_OffsetX,m_OffsetY);
+            whenMouseOverImguiWindows(keyboardFlag, mouseFlag);
+            if (!mouseFlag && m_MouseMoveable) {
+                mouseInputHandling();
+                if (!keyboardFlag)
+                    keyboardInputHandling();
+                Camera.cameraScrollEvent(m_OffsetX, m_OffsetY);
+            } else {
+                if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+                    m_MouseMoveable = true;
+            }
 
             glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            m_Camera.updateCamera();
+            Camera.updateCamera();
             // draw calls
             updateCallback();
 
@@ -98,7 +106,7 @@ public:
     }
 
     WorldCamera getWorldCamera() const {
-        return m_Camera;
+        return Camera;
     }
 
     void destroyWindow() {
@@ -124,6 +132,7 @@ public:
 
     static inline i32 WIDTH{}, HEIGHT{};
     static inline float DeltaTime{};
+    static inline WorldCamera Camera{true};
 private:
     void keyboardInputHandling() {
         if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -132,28 +141,42 @@ private:
 
         double shiftImpact = 1.0f;
         if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT))
-             shiftImpact += 0.05f;
+            shiftImpact += 0.05f;
+
+        if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            m_MouseMoveable = false;
+
+        if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+            m_MouseMoveable = true;
+
 
         if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS)
-            m_Camera.cameraMoveForwardEvent(AlienApplication::DeltaTime * shiftImpact);
+            Camera.cameraMoveForwardEvent(AlienApplication::DeltaTime * shiftImpact);
         if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS)
-            m_Camera.cameraMoveBackwardEvent(AlienApplication::DeltaTime * shiftImpact);
+            Camera.cameraMoveBackwardEvent(AlienApplication::DeltaTime * shiftImpact);
         if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS)
-            m_Camera.cameraMoveLeftEvent(AlienApplication::DeltaTime * shiftImpact);
+            Camera.cameraMoveLeftEvent(AlienApplication::DeltaTime * shiftImpact);
         if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
-            m_Camera.cameraMoveRightEvent(AlienApplication::DeltaTime * shiftImpact);
+            Camera.cameraMoveRightEvent(AlienApplication::DeltaTime * shiftImpact);
     }
 
     void mouseInputHandling() {
         double xPos, yPos;
         glfwGetCursorPos(m_Window, &xPos, &yPos);
 
-        m_Camera.cameraFreeLookEvent(xPos, yPos);
+        Camera.cameraFreeLookEvent(xPos, yPos);
     }
 
     void scrollCallback(GLFWwindow *window, double x, double y) {
         m_OffsetX = x;
         m_OffsetY = y;
+    }
+
+    void whenMouseOverImguiWindows(bool &keyboardBusy, bool &mouseBusy) {
+        ImGuiIO &io = ImGui::GetIO();
+
+        keyboardBusy = io.WantCaptureKeyboard;
+        mouseBusy = io.WantCaptureMouse;
     }
 
 
@@ -162,9 +185,10 @@ private:
 #endif
     GfxDeviceType m_GfxDeviceType;
     bool m_ShouldClose = false;
+    bool m_MouseMoveable = true;
     double m_OffsetX, m_OffsetY;
 
-    WorldCamera m_Camera;
+
     //float m_DeltaTime {0.0f};
 };
 

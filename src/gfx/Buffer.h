@@ -168,11 +168,6 @@ public:
 
     }
 
-    void useProgram() {
-        glUseProgram(this->m_ShaderProgram);
-        glCheckError();
-    }
-
     Buffer &setProgram(Gfx_u32 program) {
         this->m_ShaderProgram = program;
         return *this;
@@ -180,6 +175,10 @@ public:
 
     Gfx_u32 getVAO() {
         return this->m_VAO;
+    }
+
+    void enableVAO() {
+        glBindVertexArray(this->m_VAO);
     }
 
 private:

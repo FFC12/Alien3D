@@ -3,12 +3,13 @@
 #include <Base.hpp>
 #include <imgui.h>
 #include <map>
+#include <functional>
 
 class EditorWindow {
 private:
     static inline bool m_EditorOpen {true};
 
-    static std::map<std::string, std::function<void()>> Components;
+    static inline std::map<std::string, std::function<void()>> Components{};
 public:
     EditorWindow() = default;
 
@@ -21,7 +22,7 @@ public:
     }
 
     static inline void DrawEditorWindow() {
-        if(!ImGui::Begin("Test Window", &m_EditorOpen, ImGuiWindowFlags_None)){
+        if(!ImGui::Begin("Alien3D Editor Window", &m_EditorOpen, ImGuiWindowFlags_None)){
             ImGui::End();
             return;
         }
@@ -38,4 +39,5 @@ public:
 
 };
 
+#define COMPONENT_WIDGET_REGISTRY(name, callback) EditorWindow::ComponentWidgetRegistry(name,std::bind(&callback,this))
 #endif

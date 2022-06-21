@@ -115,7 +115,7 @@ endif()
 
 message(STATUS "Setting up build options...")
 file(GLOB_RECURSE SRC_FILES "./src/*.h" "./src/*.cpp")
-add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.cpp src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h)
+add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.cpp src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h)
 
 if(LIB_GLAD AND UNIX)
 	set(CMAKE_CXX_FLAGS -DIMGUI_IMPL_OPENGL_LOADER_GLAD)

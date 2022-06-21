@@ -65,6 +65,10 @@ public:
         glDeleteShader(this->m_VertexShader);
     }
 
+    void useProgram() {
+        glUseProgram(this->m_Program);
+    }
+
     Gfx_u32 getProgram() const {
         return this->m_Program;
     }

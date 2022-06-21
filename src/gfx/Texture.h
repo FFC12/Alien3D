@@ -59,7 +59,7 @@ public:
                          TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
                          TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR);
 
-    [[nodiscard]] Gfx_u32 enableTexture() const {
+    Gfx_u32 enableTexture(){
         glBindTexture(GL_TEXTURE_2D, m_TextureID);
     }
 

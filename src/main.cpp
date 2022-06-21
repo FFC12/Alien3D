@@ -1,17 +1,18 @@
 #include <iostream>
-#include <chrono>
 #include <memory>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 #include <Application.h>
-#include <gfx/Buffer.h>
-#include <gfx/Primitives.h>
-#include <gfx/Texture.h>
-#include <gfx/Shader.h>
-#include <engine/Camera.h>
+#include <engine/GameObject.h>
+#include <engine/RenderQueue.h>
 
+// Model Matrix (for each gameobject & identity matrix)
+// View and Projection Matrices (world camera)
+
+// Create Gameobject [Components] [drawCall] -> Adding to Render Queue
+// -> Query Queue -> Draw Call for each GameObject
 int main() {
     AlienApplication application(GfxDeviceType::GFX_OGL);
 
@@ -21,43 +22,16 @@ int main() {
         return 1;
     }
 
-    Buffer<float> buffer;
-    Shader shader;
-    std::unique_ptr<Texture> texture;
+    std::shared_ptr<GameObject> cube;
+    RenderQueue renderer;
 
     auto onInit = [&]() {
-        shader.createShader(::VertSrc, ::FragSrc);
-        auto shaderProgram = shader.getProgram();
-
-        VertexDescriptor<float> cubeDescriptor(
-                Primitives::Cube::Vertices,
-                Primitives::Cube::Colors,
-                Primitives::Cube::Normals,
-                Primitives::Cube::TexCoord
-        );
-
-        buffer.setProgram(shaderProgram)
-                .initBuffer(cubeDescriptor, BufferType::STATIC);
-        buffer.useProgram();
-
-        texture = std::make_unique<Texture>("../res/test.png", shaderProgram, "_MainTex");
-        texture->generateTexture("../res/image.png", shaderProgram, "_BumpMap");
+        cube = std::make_shared<GameObject>("test", Primitive::CUBE);
+        renderer.addQueue(cube);
     };
 
     auto onUpdate = [&]() {
-        texture->enableTexture();
-        glBindVertexArray(buffer.getVAO());
-
-        glm::mat4 model(1.0f);
-        //model = glm::rotate(model, glm::radians(180.0f) * time, glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        shader.setUniform4("model", model);
-        shader.setUniform4("view", application.getWorldCamera().getViewMatrix());
-        shader.setUniform4("proj", application.getWorldCamera().getProjMatrix());
-
-        //glDrawElements(GL_TRIANGLES,6, GL_UNSIGNED_INT, nullptr);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glCheckError();
+        renderer.render();
     };
 
     application.start(onInit, onUpdate);

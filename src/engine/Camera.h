@@ -5,7 +5,7 @@
 
 class Camera : public WorldCamera, Component {
 public:
-    Camera(): WorldCamera() {
+    Camera(): WorldCamera(false) {
     }
 };
 

@@ -27,10 +27,13 @@ private:
     glm::vec3 m_CamUp{0.0f}, m_CamForward{0.0f}, m_CamRight{0.0f};
 
     u32 m_Width, m_Height;
+    bool m_IsEditorView {false};
 public:
-    WorldCamera() = default;
+    explicit WorldCamera(bool isEditorView = true)
+    : m_IsEditorView(isEditorView)
+    {};
 
-    WorldCamera(glm::vec3 initPos) : m_Pos(initPos) {}
+    WorldCamera(glm::vec3 initPos, bool isEditorView = true) : m_Pos(initPos), m_IsEditorView(isEditorView) {}
 
     void setWindowSize(const u32& w, const u32& h) {
         m_Width = w;
@@ -46,16 +49,21 @@ public:
     }
 
     void updateCamera() {
-        m_Direction = glm::normalize(m_Pos - m_Target);
-        m_CamRight = glm::normalize(glm::cross(m_UpUnit, m_Direction));
-        m_CamUp = glm::cross(m_Direction, m_CamRight);
+        if(m_IsEditorView) {
+            m_Direction = glm::normalize(m_Pos - m_Target);
+            m_CamRight = glm::normalize(glm::cross(m_UpUnit, m_Direction));
+            m_CamUp = glm::cross(m_Direction, m_CamRight);
 //        m_CamForward = glm::vec3(0.0f,0.0f,-1.0f);
 
-        m_ViewMatrix = glm::lookAt(m_Pos, m_Pos + m_CamForward, m_CamUp);
-        auto aspect = (float) m_Width / m_Height;
-        m_ProjMatrix = glm::perspective(glm::radians(m_Fov), aspect,
-                                      0.1f, 100.0f);
+            m_ViewMatrix = glm::lookAt(m_Pos, m_Pos + m_CamForward, m_CamUp);
+            auto aspect = (float) m_Width / m_Height;
+            m_ProjMatrix = glm::perspective(glm::radians(m_Fov), aspect,
+                                            0.1f, 100.0f);
+        } else {
+            // maybe we should also set the matrices here as well...
+        }
     }
+
 
     void cameraMoveForwardEvent(float delta) {
         m_Pos += m_Speed * m_CamForward * delta;
