@@ -4,7 +4,7 @@
 #include <string>
 
 #define ALIEN_ASSERT(x) assert(x)
-#define ALIEN_ASSERT2(x) assert(x && false)
+#define ALIEN_ASSERT2(x) ALIEN_ERROR(x); abort()
 #define ALIEN_INFO(x) std::cout << x << std::endl
 #define ALIEN_WARN(x) std::cout << x << std::endl
 #define ALIEN_ERROR(x) std::cerr << x << std::endl

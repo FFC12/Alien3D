@@ -139,9 +139,12 @@ private:
             glfwSetWindowShouldClose(m_Window, true);
         }
 
-        double shiftImpact = 1.0f;
-        if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT))
-            shiftImpact += 0.05f;
+        static double shiftImpact = 1.0f;
+        if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            if (shiftImpact <= 4.0f) shiftImpact += 0.05f;
+
+        if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+            shiftImpact = 1.0f;
 
         if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             m_MouseMoveable = false;

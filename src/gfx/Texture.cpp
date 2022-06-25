@@ -12,13 +12,6 @@ void Texture::generateTexture(const char *path,
     glGenTextures(1, &m_TextureID);
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingModeS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingModeT);
-    //TODO: GL_TEXTURE_WRAP_R
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filteringModeMin);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filteringModeMag);
-
     stbi_set_flip_vertically_on_load(true);
 
     i32 w, h, ch;
@@ -30,6 +23,13 @@ void Texture::generateTexture(const char *path,
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingModeS);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingModeT);
+    //TODO: GL_TEXTURE_WRAP_R
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filteringModeMin);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filteringModeMag);
 
     stbi_image_free(data);
 }
@@ -44,13 +44,6 @@ void Texture::generateTexture(const char *path,
     glActiveTexture(GL_TEXTURE0 + this->m_CurrUnitID);
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingModeS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingModeT);
-    //TODO: GL_TEXTURE_WRAP_R
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filteringModeMin);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filteringModeMag);
-
     stbi_set_flip_vertically_on_load(true);
 
     i32 w, h, ch;
@@ -62,6 +55,13 @@ void Texture::generateTexture(const char *path,
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingModeS);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingModeT);
+    //TODO: GL_TEXTURE_WRAP_R
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filteringModeMin);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filteringModeMag);
 
     glUniform1i(glGetUniformLocation(shaderProgram, texName), this->m_CurrUnitID);
 

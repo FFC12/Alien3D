@@ -15,68 +15,106 @@
 //TODO: Destructor for buffer objects (glDeleteBuffers)
 template<typename T>
 struct VertexDescriptor {
-    std::initializer_list<T> vertices;
-
-    std::initializer_list<T> colors;
-    // 2
-    std::initializer_list<T> normals;
-
-    // 2
-    std::initializer_list<T> textureCoord;
-    std::initializer_list<Gfx_u32> indices;
-
+    std::vector<T> vertices;
+    std::vector<T> normals;
+    std::vector<T> textureCoords;
+    std::vector<T> tangents;
+    std::vector<T> bitangents;
+    std::vector<Gfx_u32> indices;
     size_t vertexCountPerIndex;
 
-    VertexDescriptor(const std::initializer_list<T> &vertices,
-                     const std::initializer_list<T> &colors,
-                     const std::initializer_list<T> &normals,
-                     const std::initializer_list<T> &textureCoord,
+    explicit VertexDescriptor(size_t vertexCount = 3) : vertexCountPerIndex(vertexCount) {
+
+    }
+
+    VertexDescriptor(const std::vector<T> &vertices,
+                     const std::vector<T> &colors,
+                     const std::vector<T> &normals,
+                     const std::vector<T> &textureCoord,
+                     const std::vector<T> &tangents,
+                     const std::vector<T> &bitangents,
                      size_t vertexCount = 3)
-            : vertices(vertices), colors(colors), normals(normals), textureCoord(textureCoord),
+            : vertices(vertices), normals(normals), tangents(tangents), bitangents(bitangents),
+              textureCoords(textureCoord),
               vertexCountPerIndex(vertexCount) {}
 
-    VertexDescriptor(const std::initializer_list<T> &vertices,
-                     const std::initializer_list<T> &colors,
-                     const std::initializer_list<T> &normals,
-                     const std::initializer_list<T> &textureCoord,
+    VertexDescriptor(const std::vector<T> &vertices,
+                     const std::vector<T> &colors,
+                     const std::vector<T> &normals,
+                     const std::vector<T> &textureCoord,
+                     const std::vector<T> &tangents,
+                     const std::vector<T> &bitangents,
                      bool hasIndices,
-                     const std::initializer_list<Gfx_u32> &indices,
+                     const std::vector<Gfx_u32> &indices,
                      size_t vertexCount = 3)
             : vertices(vertices),
-              colors(colors),
               normals(normals),
-              textureCoord(textureCoord),
+              textureCoords(textureCoord),
+              tangents(tangents), bitangents(bitangents),
               m_hasIndices(hasIndices),
               indices(indices),
               vertexCountPerIndex(vertexCount) {}
 
     VertexDescriptor(const VertexDescriptor<T> &vertexDescriptor) {
         vertices = vertexDescriptor.vertices;
-        colors = vertexDescriptor.colors;
         normals = vertexDescriptor.normals;
-        textureCoord = vertexDescriptor.textureCoord;
+        textureCoords = vertexDescriptor.textureCoords;
+        tangents = vertexDescriptor.tangents;
+        bitangents = vertexDescriptor.bitangents;
+        indices = vertexDescriptor.indices;
         m_hasIndices = vertexDescriptor.hasIndices();
         vertexCountPerIndex = vertexDescriptor.vertexCountPerIndex;
     }
 
     VertexDescriptor<T> &operator=(const VertexDescriptor<T> &vertexDescriptor) {
         vertices = vertexDescriptor.vertices;
-        colors = vertexDescriptor.colors;
         normals = vertexDescriptor.normals;
-        textureCoord = vertexDescriptor.textureCoord;
+        textureCoords = vertexDescriptor.textureCoords;
+        tangents = vertexDescriptor.tangents;
+        bitangents = vertexDescriptor.bitangents;
+        indices = vertexDescriptor.indices;
         m_hasIndices = vertexDescriptor.hasIndices();
         vertexCountPerIndex = vertexDescriptor.vertexCountPerIndex;
 
         return *this;
     }
 
+    VertexDescriptor(const VertexDescriptor<T> &&vertexDescriptor) {
+        vertices = std::move(vertexDescriptor.vertices);
+        normals = std::move(vertexDescriptor.normals);
+        textureCoords = std::move(vertexDescriptor.textureCoords);
+        tangents = std::move(vertexDescriptor.tangents);
+        bitangents = std::move(vertexDescriptor.bitangents);
+        indices = std::move(vertexDescriptor.indices);
+        m_hasIndices = std::move(vertexDescriptor.hasIndices());
+        vertexCountPerIndex = std::move(vertexDescriptor.vertexCountPerIndex);
+    }
+
+    VertexDescriptor<T> &operator=(const VertexDescriptor<T> &&vertexDescriptor) {
+        vertices = std::move(vertexDescriptor.vertices);
+        normals = std::move(vertexDescriptor.normals);
+        textureCoords = std::move(vertexDescriptor.textureCoords);
+        tangents = std::move(vertexDescriptor.tangents);
+        bitangents = std::move(vertexDescriptor.bitangents);
+        indices = std::move(vertexDescriptor.indices);
+        m_hasIndices = std::move(vertexDescriptor.hasIndices());
+        vertexCountPerIndex = std::move(vertexDescriptor.vertexCountPerIndex);
+
+        return *this;
+    }
+
+
     [[nodiscard]]
     bool hasIndices() const {
         return m_hasIndices;
     }
 
+    void setHasIndices(bool v) {
+        this->m_hasIndices = v;
+    }
+
 private:
-    bool m_hasIndices{};
+    bool m_hasIndices{false};
 };
 
 enum BufferType {
@@ -85,26 +123,37 @@ enum BufferType {
     STREAM
 };
 
+class Mesh;
+
+class AssetImporter;
+
+class Model;
+
 template<typename T>
 class Buffer {
+    friend class Mesh;
+
+    friend class Model;
+
+    friend class AssetImporter;
+
 public:
     Buffer() {}
 
     Buffer(const VertexDescriptor<T> &vertexDescriptor, BufferType bufferType)
-    //       : m_VertDesc(vertexDescriptor)
-    {
+            : m_VertDesc(vertexDescriptor) {
         ALIEN_ASSERT(vertexDescriptor.vertices.size() % vertexDescriptor.vertexCountPerIndex != 1 &&
                      "Vertices count must be divisable by vertex count per index!");
 
         this->m_BufferType = bufferType;
     }
 
-/*
-    Buffer& process() {
-        ALIEN_ASSERT(this->m_ShaderProgram == 0 && "Shader program must be set!");
+    void initBuffer(BufferType bufferType) {
+        ALIEN_ASSERT(m_VertDesc.vertices.size() % m_VertDesc.vertexCountPerIndex != 1 &&
+                     "Vertices count must be divisable by vertex count per index!");
 
         Gfx_enum bufferDrawType;
-        switch (this->m_BufferType) {
+        switch (bufferType) {
             case STATIC:
                 bufferDrawType = GL_STATIC_DRAW;
                 break;
@@ -118,7 +167,7 @@ public:
 
         switch (GfxBase::SelectedGfxDeviceType) {
             case GFX_OGL: {
-                allocateGLBuffer(this->m_VertDesc,bufferDrawType);
+                allocateGLBuffer(m_VertDesc, bufferDrawType);
                 break;
             }
             case GFX_OGLES:
@@ -130,9 +179,8 @@ public:
             case GFX_DX:
                 break;
         }
-        return *this;
+
     }
-*/
 
     void initBuffer(const VertexDescriptor<T> &vertexDescriptor, BufferType bufferType) {
         ALIEN_ASSERT(vertexDescriptor.vertices.size() % vertexDescriptor.vertexCountPerIndex != 1 &&
@@ -188,13 +236,10 @@ private:
         std::vector<T> payload(vertexDesc.vertices.begin(), vertexDesc.vertices.end());
 
         //3
-        payload.insert(payload.end(), vertexDesc.colors.begin(), vertexDesc.colors.end());
-
-        //2
         payload.insert(payload.end(), vertexDesc.normals.begin(), vertexDesc.normals.end());
 
         //2
-        payload.insert(payload.end(), vertexDesc.textureCoord.begin(), vertexDesc.textureCoord.end());
+        payload.insert(payload.end(), vertexDesc.textureCoords.begin(), vertexDesc.textureCoords.end());
 
         glGenVertexArrays(1, &m_VAO);
         glGenBuffers(1, &m_VBO);
@@ -210,7 +255,7 @@ private:
         if (vertexDesc.hasIndices()) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexDesc.indices.size() * sizeof(Gfx_u32),
-                         vertexDesc.indices.begin(), bufferType);
+                         &vertexDesc.indices[0], bufferType);
             glCheckError();
         }
 
@@ -221,17 +266,14 @@ private:
         auto texCoordLoc = glGetAttribLocation(this->m_ShaderProgram, "texCoord");
          */
         glBindAttribLocation(this->m_ShaderProgram, 0, "position");
-        glBindAttribLocation(this->m_ShaderProgram, 1, "color");
-        glBindAttribLocation(this->m_ShaderProgram, 2, "normal");
-        glBindAttribLocation(this->m_ShaderProgram, 3, "texCoord");
+        glBindAttribLocation(this->m_ShaderProgram, 1, "normal");
+        glBindAttribLocation(this->m_ShaderProgram, 2, "texCoord");
 
         Gfx_u32 posLoc = 0;
-        Gfx_u32 colorLoc = 1;
-        Gfx_u32 normalLoc = 2;
-        Gfx_u32 texCoordLoc = 3;
+        Gfx_u32 normalLoc = 1;
+        Gfx_u32 texCoordLoc = 2;
 
         size_t verticesSize = vertexDesc.vertices.size();
-        size_t colorsSize = vertexDesc.colors.size();
         size_t normalsSize = vertexDesc.normals.size();
 //        size_t texCoordSize = vertexDesc.textureCoord.size();
 
@@ -239,42 +281,40 @@ private:
             glVertexAttribPointer(posLoc, 3, GL_DOUBLE, GL_FALSE, 0, (Gfx_void *) 0);
             glEnableVertexAttribArray(posLoc);
 
-            glVertexAttribPointer(colorLoc, 3, GL_DOUBLE, GL_FALSE, 0, (Gfx_void *) (verticesSize * sizeof(double)));
-            glEnableVertexAttribArray(colorLoc);
-
-            glVertexAttribPointer(normalLoc, 2, GL_DOUBLE, GL_FALSE, 0, (Gfx_void *) (colorsSize * sizeof(double)));
+            glVertexAttribPointer(normalLoc, 3, GL_DOUBLE, GL_FALSE, 0, (Gfx_void *) (verticesSize * sizeof(double)));
             glEnableVertexAttribArray(normalLoc);
 
-            glVertexAttribPointer(texCoordLoc, 2, GL_DOUBLE, GL_FALSE, 0, (Gfx_void *) (normalsSize * sizeof(double)));
+            glVertexAttribPointer(texCoordLoc, 2, GL_DOUBLE, GL_FALSE, 0,
+                                  (Gfx_void *) ((normalsSize + verticesSize) * sizeof(double)));
             glEnableVertexAttribArray(texCoordLoc);
         } else if (std::is_same<T, float>::value) {
             glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 0, (Gfx_void *) 0);
             glEnableVertexAttribArray(posLoc);
 
-            glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, (Gfx_void *) (verticesSize * sizeof(float)));
-            glEnableVertexAttribArray(colorLoc);
-
-            glVertexAttribPointer(normalLoc, 2, GL_FLOAT, GL_FALSE, 0,
-                                  (Gfx_void *) ((colorsSize + verticesSize) * sizeof(float)));
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0,
+                                  (Gfx_void *) ((verticesSize) * sizeof(float)));
             glEnableVertexAttribArray(normalLoc);
 
             glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, 0,
-                                  (Gfx_void *) ((normalsSize + colorsSize + verticesSize) * sizeof(float)));
+                                  (Gfx_void *) ((normalsSize + verticesSize) * sizeof(float)));
             glEnableVertexAttribArray(texCoordLoc);
         } else {
             static_assert("Only float and double type of vertex descriptor is allowed!");
         }
 
+        m_BufferInitialized = true;
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 
-//    VertexDescriptor<T>& m_VertDesc;
+    VertexDescriptor<T> m_VertDesc;
     BufferType m_BufferType;
+
+    bool m_BufferInitialized {false};
+
     Gfx_u32 m_VBO{};
     Gfx_u32 m_VAO{};
     Gfx_u32 m_EBO{};
-
     Gfx_u32 m_ShaderProgram{};
 };
 

@@ -7,26 +7,22 @@
 #include <Application.h>
 #include <engine/GameObject.h>
 #include <engine/RenderQueue.h>
+#include <engine/AssetImporter.h>
 
-// Model Matrix (for each gameobject & identity matrix)
-// View and Projection Matrices (world camera)
-
-// Create Gameobject [Components] [drawCall] -> Adding to Render Queue
-// -> Query Queue -> Draw Call for each GameObject
 int main() {
     AlienApplication application(GfxDeviceType::GFX_OGL);
 
     ALIEN_INFO("Creating application...");
     if (!application.create(1920, 1080, "Alien3d")) {
         ALIEN_ASSERT2("FAILED");
-        return 1;
     }
 
     std::shared_ptr<GameObject> cube;
     RenderQueue renderer;
 
     auto onInit = [&]() {
-        cube = std::make_shared<GameObject>("test", Primitive::CUBE);
+        auto model = AssetImporter::getInstance().loadModelFromPath("../res/teapot.obj");
+        cube = std::make_shared<GameObject>("test", model);
         renderer.addQueue(cube);
     };
 
