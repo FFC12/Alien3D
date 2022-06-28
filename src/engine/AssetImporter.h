@@ -124,29 +124,54 @@ private:
                     indices.push_back(face.mIndices[j]);
                 }
             }
+
+
+            // set-up vertex data (vertex descriptor)
+            VertexDescriptor<f32> vertexDescriptor;
+            vertexDescriptor.vertices = std::move(vertices);
+            vertexDescriptor.normals = std::move(normals);
+            vertexDescriptor.tangents = std::move(tangents);
+            vertexDescriptor.bitangents = std::move(bitangents);
+            vertexDescriptor.textureCoords = std::move(texCoords);
+            vertexDescriptor.indices = std::move(indices);
+            vertexDescriptor.setHasIndices(mesh->HasFaces());
+
+            alienMeshData = std::make_shared<Mesh>(vertexDescriptor);
+
+            auto *mat = scene->mMaterials[mesh->mMaterialIndex];
+            processTextures(mat, alienMeshData);
+
+            return std::move(alienMeshData);
         }
-
-        // set-up vertex data (vertex descriptor)
-        VertexDescriptor<f32> vertexDescriptor;
-        vertexDescriptor.vertices = std::move(vertices);
-        vertexDescriptor.normals = std::move(normals);
-        vertexDescriptor.tangents = std::move(tangents);
-        vertexDescriptor.bitangents = std::move(bitangents);
-        vertexDescriptor.textureCoords = std::move(texCoords);
-        vertexDescriptor.indices = std::move(indices);
-        vertexDescriptor.setHasIndices(mesh->HasFaces());
-
-        alienMeshData = std::make_shared<Mesh>(vertexDescriptor);
-
-        auto *mat = scene->mMaterials[mesh->mMaterialIndex];
-        processTextures(mat, aiTextureType_DIFFUSE, "_Diffuse");
-
-        return std::move(alienMeshData);
     }
 
     static void
-    processTextures(aiMaterial *mat, aiTextureType type, const std::string &texName) {
-        //TODO: Needs some improvements (see. Texture.h/Texture.cpp)
+    processTextures(aiMaterial *mat, std::shared_ptr<Mesh> &mesh) {
+        auto diffCount = mat->GetTextureCount(aiTextureType_DIFFUSE);
+        setTexturePath(mat, aiTextureType_DIFFUSE, diffCount, "_Diffuse", mesh);
+
+        // bump * grayscale *
+        auto normCount = mat->GetTextureCount(aiTextureType_NORMALS);
+        setTexturePath(mat, aiTextureType_NORMALS, normCount, "_NormalMap", mesh);
+
+        auto specCount = mat->GetTextureCount(aiTextureType_SPECULAR);
+        setTexturePath(mat, aiTextureType_SPECULAR, specCount, "_SpecularMap", mesh);
+
+        auto heightCount = mat->GetTextureCount(aiTextureType_HEIGHT);
+        setTexturePath(mat, aiTextureType_HEIGHT, heightCount, "_HeightMap", mesh);
+    }
+
+    static void
+    setTexturePath(aiMaterial *mat, aiTextureType type, u32 count, const std::string &byName,
+                   std::shared_ptr<Mesh> &meshData) {
+        for (int i = 0; i < count; i++) {
+            aiString path;
+            mat->GetTexture(type, i, &path);
+
+            if (meshData->m_TexturePaths.count(byName) <= 0) {
+                meshData->m_TexturePaths[byName] = RESOURCE_PATH(path.C_Str());
+            }
+        }
     }
 
     // WARN: Not thread-safe class

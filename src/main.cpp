@@ -17,13 +17,16 @@ int main() {
         ALIEN_ASSERT2("FAILED");
     }
 
-    std::shared_ptr<GameObject> cube;
+    std::shared_ptr<GameObject> room, room2;
     RenderQueue renderer;
 
     auto onInit = [&]() {
-        auto model = AssetImporter::getInstance().loadModelFromPath("../res/teapot.obj");
-        cube = std::make_shared<GameObject>("test", model);
-        renderer.addQueue(cube);
+        auto model = AssetImporter::getInstance().loadModelFromPath("../res/scene.gltf");
+        room = std::make_shared<GameObject>("test", model);
+        room2 = std::make_shared<GameObject>("test2", model);
+
+        renderer.addQueue(room);
+        renderer.addQueue(room2);
     };
 
     auto onUpdate = [&]() {

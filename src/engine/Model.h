@@ -1,5 +1,6 @@
 #ifndef ALIEN3D_MODEL_H
 #define ALIEN3D_MODEL_H
+
 #include <memory>
 #include <Base.hpp>
 #include <gfx/GfxBase.h>
@@ -7,10 +8,14 @@
 #include <vector>
 
 class AssetImporter;
+
 class GameObject;
+
 class Model {
     friend class AssetImporter;
+
     friend class GameObject;
+
 public:
     Model(const std::string &path) : m_ModelPath(path) {
 
@@ -22,15 +27,24 @@ public:
     }
 
 private:
+    void initTextures(Gfx_u32 shaderProg) {
+        for (auto &mesh: m_Meshes) {
+            for (auto &texture: mesh->m_TexturePaths) {
+                mesh->m_Texture.generateTexture(texture.second.c_str(), shaderProg, texture.first.c_str());
+            }
+        }
+    }
+
+
     void renderGL() {
-        for(auto &mesh: m_Meshes) {
-            if(!mesh->m_Buffer.m_VertDesc.vertices.empty() && mesh->m_Buffer.m_BufferInitialized) {
+        for (auto &mesh: m_Meshes) {
+            if (!mesh->m_Buffer.m_VertDesc.vertices.empty() && mesh->m_Buffer.m_BufferInitialized) {
                 mesh->m_Buffer.enableVAO();
-                if(mesh->m_Buffer.m_VertDesc.hasIndices()) {
-                    glDrawElements(GL_TRIANGLES,mesh->m_Buffer.m_VertDesc.indices.size(), GL_UNSIGNED_INT, nullptr);
+                if (mesh->m_Buffer.m_VertDesc.hasIndices()) {
+                    glDrawElements(GL_TRIANGLES, mesh->m_Buffer.m_VertDesc.indices.size(), GL_UNSIGNED_INT, nullptr);
                     glCheckError();
                 } else {
-                    glDrawArrays(GL_TRIANGLES,0, mesh->m_Buffer.m_VertDesc.vertices.size() / 3);
+                    glDrawArrays(GL_TRIANGLES, 0, mesh->m_Buffer.m_VertDesc.vertices.size() / 3);
                     glCheckError();
                 }
             }
@@ -38,7 +52,7 @@ private:
     }
 
     std::vector<std::shared_ptr<Mesh>> m_Meshes;
-    bool m_HasMeshData { false };
+    bool m_HasMeshData{false};
 
     std::string m_ModelPath;
 };

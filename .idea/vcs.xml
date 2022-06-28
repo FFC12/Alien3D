@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/assimp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/freetype" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/freetype/subprojects/dlg" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/glad" vcs="Git" />

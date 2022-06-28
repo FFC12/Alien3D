@@ -1,5 +1,6 @@
 #ifndef ALIEN3D_GAMEOBJECT_H
 #define ALIEN3D_GAMEOBJECT_H
+
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -19,33 +20,38 @@ enum Primitive {
 };
 
 class RenderQueue;
+
 class GameObject {
     friend RenderQueue;
 public:
-    explicit GameObject(const std::string& name);
+    explicit GameObject(const std::string &name);
 
-    GameObject(const std::string& name, Primitive primitiveType);
+    GameObject(const std::string &name, Primitive primitiveType);
 
-    GameObject(const std::string& name, std::shared_ptr<Model>& model);
+    GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
-    template<typename T, typename = typename std::enable_if<std::is_base_of<Component,T>::value>::type>
-    void attachComponent(const std::shared_ptr<T>& component) {
-        if(this->m_Components.count(typeid(T).name()) > 0) {
+    template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
+    void attachComponent(const std::shared_ptr<T> &component) {
+        if (this->m_Components.count(typeid(T).name()) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
             this->m_Components[typeid(T).name()] = component;
         }
     }
 
-    template<typename T, typename = typename std::enable_if<std::is_base_of<Component,T>::value>::type>
-    void detachComponent(const std::shared_ptr<T>& component) {
+    template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
+    void detachComponent(const std::shared_ptr<T> &component) {
         auto pos = this->m_Components.find(typeid(T).name());
         m_Components.erase(pos);
     }
 
+    // TODO: add getComponent function..
 private:
     void drawCall();
+
     void initGameObject();
+
+    static void GameobjectWidget();
 
     std::string m_ObjectUUID;
     std::string m_Name;
@@ -54,10 +60,13 @@ private:
     Texture m_Texture;
     std::shared_ptr<Model> m_Model;
 
-    bool m_Renderable { false };
+    bool m_Renderable{false};
     std::shared_ptr<Transform> m_Transformation;
 
-    std::unordered_map<std::string,std::shared_ptr<Component>> m_Components;
+    std::unordered_map<std::string, std::shared_ptr<Component>> m_Components;
+
+    static inline bool WidgetInitialized { false };
+    static inline std::unordered_map<std::string, std::shared_ptr<GameObject>> GameobjectList{};
 };
 
 #endif //ALIEN3D_GAMEOBJECT_H

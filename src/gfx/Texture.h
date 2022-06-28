@@ -3,6 +3,8 @@
 
 #include <gfx/GfxBase.h>
 #include <engine/Component.h>
+#include <unordered_map>
+#include <optional>
 
 // Add other options as well.
 enum TextureFilteringMode {
@@ -42,7 +44,9 @@ public:
     };
 
     ~Texture() {
-        glDeleteTextures(1, &m_TextureID);
+        for (auto texture: m_TextureIDs) {
+            glDeleteTextures(1, &texture.first);
+        }
     }
 
     void generateTexture(const char *path,
@@ -59,13 +63,23 @@ public:
                          TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
                          TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR);
 
-    Gfx_u32 enableTexture(){
-        glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    Gfx_u32 enableTexture() {
+        for (auto texture: m_TextureIDs) {
+            if (texture.second.has_value()) {
+                glActiveTexture(GL_TEXTURE0 + texture.second.value());
+                glBindTexture(GL_TEXTURE_2D, texture.first);
+            }
+        }
     }
 
 private:
     Gfx_u32 m_CurrUnitID{0};
-    Gfx_u32 m_TextureID{0};
+
+    // Texture ID - Unit ID
+    std::unordered_map<Gfx_u32, std::optional<Gfx_u32>> m_TextureIDs{};
+
+    // <path, pair < TexID, UnitID > >
+    static inline std::unordered_map<std::string, std::pair<Gfx_u32, Gfx_u32>> TextureCaches{};
 };
 
 
