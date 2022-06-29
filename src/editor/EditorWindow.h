@@ -22,11 +22,17 @@ public:
         }
     }
 
-    static inline void DrawEditorWindow() {
+    static inline void DrawEditorWindow(float deltaTime) {
+//        auto fps = 1 / deltaTime;
+//        auto ms = deltaTime;
         if (!ImGui::Begin("Alien3D Editor Window", &m_EditorOpen, ImGuiWindowFlags_None)) {
             ImGui::End();
             return;
         }
+
+        //TODO: Add some delay...
+        ImGui::Text("FPS: %.2f \n ms: %.3f", 1 / deltaTime, deltaTime);
+//        ALIEN_INFO("FPS: " << 1 / deltaTime << "\nms: " << deltaTime);
 
         if (!Widgets.empty()) {
             std::map<std::string, std::function<void()>>::iterator it;

@@ -10,6 +10,14 @@ class Shader : public Component {
 public:
     Shader() = default;
 
+    Shader(const Shader &other) {
+        this->m_FragmentShader = other.m_FragmentShader;
+        this->m_VertexShader = other.m_VertexShader;
+        this->m_Program = other.m_Program;
+        this->m_UUID = other.m_UUID;
+    }
+
+
     Shader(const std::string &vertSrc, const std::string &fragSrc) {
         createShader(vertSrc, fragSrc);
     }

@@ -1,7 +1,7 @@
 #include "GameObject.h"
+#include "ShaderManager.h"
 #include <Application.h>
 #include <gfx/GfxBase.h>
-#include <gfx/Primitives.h>
 
 GameObject::GameObject(const std::string &name) {
     this->m_Name = name;
@@ -45,7 +45,11 @@ void GameObject::initGameObject() {
 
     GameobjectList[objectName] = std::make_shared<GameObject>(*this);
 
-    m_Shader.createShader(::VertSrc, ::FragSrc);
+    ShaderManager::getInstance().addIncludeFile("common.glsl.h", RESOURCE_PATH("shaders/common.glsl.h"));
+    m_Shader = ShaderManager::getInstance().addShader("default", RESOURCE_PATH("shaders/default_vertex.glsl"),
+                                                      RESOURCE_PATH("shaders/default_fragment.glsl"));
+
+//    m_Shader.createShader(::VertSrc, ::FragSrc);
     glCheckError();
 
     m_Shader.useProgram();
@@ -80,7 +84,7 @@ void GameObject::drawCall() {
 }
 
 void GameObject::GameobjectWidget() {
-    if(ImGui::TreeNode("Scene List")) {
+    if (ImGui::TreeNode("Scene List")) {
         static ImGuiTreeNodeFlags baseFlags =
                 ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
                 ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -107,9 +111,9 @@ void GameObject::GameobjectWidget() {
 
         ImGui::TreePop();
 
-        if(GameobjectList.count(nodeClicked) > 0){
+        if (GameobjectList.count(nodeClicked) > 0) {
             static bool isOpen = true;
-            if(!ImGui::Begin("Transformation Window", &isOpen, ImGuiWindowFlags_None)) {
+            if (!ImGui::Begin("Transformation Window", &isOpen, ImGuiWindowFlags_None)) {
                 ImGui::End();
                 return;
             }

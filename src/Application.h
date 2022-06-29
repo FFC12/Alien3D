@@ -94,7 +94,7 @@ public:
 
             //imgui draw calls
             GLFWImguiAdapter::ImGuiUpdate([]() {
-                EditorWindow::DrawEditorWindow();
+                EditorWindow::DrawEditorWindow(DeltaTime);
             });
 
             glfwGetFramebufferSize(m_Window, &WIDTH, &HEIGHT);

@@ -27,15 +27,14 @@ private:
     glm::vec3 m_CamUp{0.0f}, m_CamForward{0.0f}, m_CamRight{0.0f};
 
     u32 m_Width, m_Height;
-    bool m_IsEditorView {false};
+    bool m_IsEditorView{false};
 public:
     explicit WorldCamera(bool isEditorView = true)
-    : m_IsEditorView(isEditorView)
-    {};
+            : m_IsEditorView(isEditorView) {};
 
     WorldCamera(glm::vec3 initPos, bool isEditorView = true) : m_Pos(initPos), m_IsEditorView(isEditorView) {}
 
-    void setWindowSize(const u32& w, const u32& h) {
+    void setWindowSize(const u32 &w, const u32 &h) {
         m_Width = w;
         m_Height = h;
     }
@@ -49,10 +48,11 @@ public:
     }
 
     void updateCamera() {
-        if(m_IsEditorView) {
-            m_Direction = glm::normalize(m_Pos - m_Target);
-            m_CamRight = glm::normalize(glm::cross(m_UpUnit, m_Direction));
-            m_CamUp = glm::cross(m_Direction, m_CamRight);
+        if (m_IsEditorView) {
+//            m_Direction = glm::normalize(m_Pos - m_Target);
+//            m_CamRight = glm::normalize(glm::cross(m_UpUnit, m_Direction));
+            m_CamRight = glm::normalize(glm::cross(m_UpUnit, m_CamForward));
+            m_CamUp = glm::normalize(glm::cross(m_CamForward, m_CamRight));
 //        m_CamForward = glm::vec3(0.0f,0.0f,-1.0f);
 
             m_ViewMatrix = glm::lookAt(m_Pos, m_Pos + m_CamForward, m_CamUp);
@@ -84,7 +84,7 @@ public:
     }
 
     void cameraFreeLookEvent(double xPos, double yPos, double s = 0.1f) {
-        static double lastX = m_Width / 2 , lastY = m_Height / 2;
+        static double lastX = m_Width / 2, lastY = m_Height / 2;
 
         if (m_MouseJustInitialized) {
             lastX = xPos;
