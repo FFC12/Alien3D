@@ -1,0 +1,11 @@
+Model Information:
+* title:	One Line Cube
+* source:	https://sketchfab.com/3d-models/one-line-cube-0e96435a23ee42f9b0e76860066c62ff
+* author:	rodrivgm (https://sketchfab.com/rodrivgm)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "One Line Cube" (https://sketchfab.com/3d-models/one-line-cube-0e96435a23ee42f9b0e76860066c62ff) by rodrivgm (https://sketchfab.com/rodrivgm) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

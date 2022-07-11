@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include <engine/Component.h>
+#include <engine/Light.h>
 #include <gfx/Texture.h>
 #include <gfx/Shader.h>
 #include <gfx/WorldCamera.h>
@@ -21,8 +22,25 @@ enum Primitive {
 
 class RenderQueue;
 
+class Light;
+
+class SpriteBatcher;
+
+class WorldSimulation;
+
+class Sprite;
+
 class GameObject {
-    friend RenderQueue;
+    friend class RenderQueue;
+
+    friend class Sprite;
+
+    friend class Light;
+
+    friend class WorldSimulation;
+
+    friend class SpriteBatcher;
+
 public:
     explicit GameObject(const std::string &name);
 
@@ -31,25 +49,48 @@ public:
     GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void attachComponent(const std::shared_ptr<T> &component) {
-        if (this->m_Components.count(typeid(T).name()) > 0) {
+    void attachComponent(const std::shared_ptr<T> &component, const std::string &name) {
+        if (this->m_Components.count(name) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
-            this->m_Components[typeid(T).name()] = component;
+            this->m_Components[name] = (Component *) component.get();
         }
     }
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void detachComponent(const std::shared_ptr<T> &component) {
-        auto pos = this->m_Components.find(typeid(T).name());
+    void attachComponent(T *component, const std::string &name) {
+        if (this->m_Components.count(name) > 0) {
+            ALIEN_ERROR("This component has already added to GameObject!");
+        } else {
+            this->m_Components[name] = component;
+        }
+    }
+
+    template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
+    void detachComponent(const std::shared_ptr<T> &component, const std::string &name) {
+        auto pos = this->m_Components.find(name);
         m_Components.erase(pos);
     }
 
+    template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
+    T *getComponent(const std::string &name) {
+        auto pos = this->m_Components.find(name);
+        return (T *) pos->second;
+    }
+
+    std::string getObjectUUID() {
+        return this->m_ObjectUUID;
+    }
+
     // TODO: add getComponent function..
-private:
-    void drawCall();
+protected:
+    virtual void drawCall();
+
+    void initObject();
 
     void initGameObject();
+
+    void components();
 
     static void GameobjectWidget();
 
@@ -58,15 +99,17 @@ private:
 
     Shader m_Shader;
     Texture m_Texture;
+
+    std::shared_ptr<Transform> m_Transformation;
     std::shared_ptr<Model> m_Model;
 
     bool m_Renderable{false};
-    std::shared_ptr<Transform> m_Transformation;
+    bool m_IsSprite{false};
+    std::map<std::string, Component *> m_Components;
 
-    std::unordered_map<std::string, std::shared_ptr<Component>> m_Components;
-
-    static inline bool WidgetInitialized { false };
-    static inline std::unordered_map<std::string, std::shared_ptr<GameObject>> GameobjectList{};
+    static inline bool WidgetInitialized{false};
+    static inline bool WireframeMode{false};
+    static inline std::unordered_map<std::string, GameObject *> GameobjectList{};
 };
 
 #endif //ALIEN3D_GAMEOBJECT_H

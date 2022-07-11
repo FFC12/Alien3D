@@ -5,6 +5,8 @@
 #include <gfx/GfxBase.h>
 #include <engine/Component.h>
 #include <string>
+#include "imgui.h"
+
 
 class Shader : public Component {
 public:
@@ -14,11 +16,14 @@ public:
         this->m_FragmentShader = other.m_FragmentShader;
         this->m_VertexShader = other.m_VertexShader;
         this->m_Program = other.m_Program;
+        this->m_FragmentSource = other.m_FragmentSource;
+        this->m_VertexSource = other.m_VertexSource;
         this->m_UUID = other.m_UUID;
     }
 
-
     Shader(const std::string &vertSrc, const std::string &fragSrc) {
+        m_VertexSource = vertSrc;
+        m_FragmentSource = fragSrc;
         createShader(vertSrc, fragSrc);
     }
 
@@ -27,6 +32,9 @@ public:
     }
 
     void createShader(const std::string &vertSrc, const std::string &fragSrc) {
+        m_VertexSource = vertSrc;
+        m_FragmentSource = fragSrc;
+
         // Creating vertex and fragment shaders
         this->m_FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         this->m_VertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -75,6 +83,12 @@ public:
 
     void useProgram() {
         glUseProgram(this->m_Program);
+        glCheckError();
+    }
+
+    void disableProgram() {
+        glUseProgram(0);
+        glCheckError();
     }
 
     Gfx_u32 getProgram() const {
@@ -89,7 +103,80 @@ public:
         glCheckError();
     }
 
+    void setVector3(const std::string &uName, const glm::vec3 &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform3fv(uPos, 1, glm::value_ptr(val));
+        glCheckError();
+    }
+
+    void setVector2(const std::string &uName, const glm::vec2 &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform2fv(uPos, 1, glm::value_ptr(val));
+        glCheckError();
+    }
+
+    void setBool(const std::string &uName, const bool &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform1i(uPos, val);
+        glCheckError();
+    }
+
+    void setInt(const std::string &uName, const int &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform1i(uPos, val);
+        glCheckError();
+    }
+
+    void setIntArray(const std::string &uName, const std::vector<i32> &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform1iv(uPos, val.size(), &val[0]);
+        glCheckError();
+    }
+
+    void setFloat(const std::string &uName, const float &val) {
+        auto uPos = glGetUniformLocation(m_Program, uName.c_str());
+        glCheckError();
+
+        glUniform1f(uPos, val);
+        glCheckError();
+    }
+
+    void OnComponentWidgetDrawn() override {
+        shaderWidget();
+    }
+
 private:
+    void shaderWidget() {
+        if (ImGui::TreeNode("Shader")) {
+            static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly;
+//        ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
+//        ImGui::CheckboxFlags("ImGuiInputTextFlags_AllowTabInput", &flags, ImGuiInputTextFlags_AllowTabInput);
+//        ImGui::CheckboxFlags("ImGuiInputTextFlags_CtrlEnterForNewLine", &flags,
+//                             ImGuiInputTextFlags_CtrlEnterForNewLine);
+            ImGui::InputTextMultiline("##source", const_cast<char *>(m_FragmentSource.c_str()), m_FragmentSource.size(),
+                                      ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+
+            ImGui::InputTextMultiline("##source2", const_cast<char *>(m_VertexSource.c_str()), m_VertexSource.size(),
+                                      ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    std::string m_FragmentSource;
+    std::string m_VertexSource;
+
     Gfx_u32 m_FragmentShader;
     Gfx_u32 m_VertexShader;
     Gfx_u32 m_Program;

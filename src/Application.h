@@ -58,7 +58,8 @@ public:
         return true;
     }
 
-    void start(const std::function<void()> &initCallback, const std::function<void()> &updateCallback) {
+    void start(const std::function<void()> &initCallback, const std::function<void()> &updateCallback,
+               const std::function<void()> &keyboardCallback, bool overrideKeyword = false) {
 #ifdef LIB_GLFW
         Camera.setWindowSize(WIDTH, HEIGHT);
         initCallback();
@@ -70,6 +71,7 @@ public:
             // TODO: Make changes (TAO etc.)
             // Calculating the deltatime as simple as possible.
             float currentFrame = static_cast<float>(glfwGetTime());
+            Time = currentFrame;
             DeltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
@@ -77,15 +79,21 @@ public:
             whenMouseOverImguiWindows(keyboardFlag, mouseFlag);
             if (!mouseFlag && m_MouseMoveable) {
                 mouseInputHandling();
-                if (!keyboardFlag)
-                    keyboardInputHandling();
+                if (!keyboardFlag) {
+                    if(overrideKeyword) {
+                        keyboardCallback();
+                    } else {
+                        keyboardInputHandling();
+                    }
+                }
                 Camera.cameraScrollEvent(m_OffsetX, m_OffsetY);
             } else {
                 if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
                     m_MouseMoveable = true;
             }
 
-            glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+            auto color = Camera.getCameraBackground();
+            glClearColor(color.x, color.y, color.z, color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             Camera.updateCamera();
@@ -94,7 +102,7 @@ public:
 
             //imgui draw calls
             GLFWImguiAdapter::ImGuiUpdate([]() {
-                EditorWindow::DrawEditorWindow(DeltaTime);
+                EditorWindow::DrawEditorWindow(DeltaTime, Camera.isOrtho());
             });
 
             glfwGetFramebufferSize(m_Window, &WIDTH, &HEIGHT);
@@ -108,6 +116,7 @@ public:
     WorldCamera getWorldCamera() const {
         return Camera;
     }
+
 
     void destroyWindow() {
 #ifdef LIB_GLFW
@@ -131,7 +140,7 @@ public:
 #endif
 
     static inline i32 WIDTH{}, HEIGHT{};
-    static inline float DeltaTime{};
+    static inline float DeltaTime{}, Time{};
     static inline WorldCamera Camera{true};
 private:
     void keyboardInputHandling() {
@@ -139,12 +148,12 @@ private:
             glfwSetWindowShouldClose(m_Window, true);
         }
 
-        static double shiftImpact = 1.0f;
+        static double shiftImpact = 5.0f;
         if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            if (shiftImpact <= 4.0f) shiftImpact += 0.05f;
+            if (shiftImpact <= 20.0f) shiftImpact += 0.5f;
 
         if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-            shiftImpact = 1.0f;
+            shiftImpact = 5.0f;
 
         if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             m_MouseMoveable = false;

@@ -26,6 +26,10 @@ public:
     std::shared_ptr<Model> loadModelFromPath(const std::string &path) {
         std::shared_ptr<Model> model = std::make_shared<Model>(path);
 
+        LastResourcePath = path;
+        size_t n = LastResourcePath.find_last_of('/');
+        LastResourcePath = LastResourcePath.substr(0, n);
+
         //TODO: other flags will be added later
         auto *scene = m_Importer.ReadFile(path,
                                           aiProcess_Triangulate | aiProcess_GenNormals);
@@ -169,10 +173,13 @@ private:
             mat->GetTexture(type, i, &path);
 
             if (meshData->m_TexturePaths.count(byName) <= 0) {
-                meshData->m_TexturePaths[byName] = RESOURCE_PATH(path.C_Str());
+                meshData->m_TexturePaths[byName] =
+                        LastResourcePath + "/" + path.C_Str(); // RESOURCE_PATH(path.C_Str());
             }
         }
     }
+
+    static inline std::string LastResourcePath{};
 
     // WARN: Not thread-safe class
     Assimp::Importer m_Importer;

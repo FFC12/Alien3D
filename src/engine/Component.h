@@ -8,6 +8,7 @@ public:
         this->m_UUID = Utils::getUUID();
     }
 
+    virtual void OnComponentWidgetDrawn() = 0;
 protected:
     std::string m_UUID;
 private:
