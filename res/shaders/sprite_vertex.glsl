@@ -9,7 +9,7 @@ uniform mat4 model;
 
 uniform bool _Batch;
 uniform float _Time = 1.0;
-uniform float _ZFar = 2.0;
+uniform float _ZFar = 5.0;
 
 out vec3 outColor;
 out vec3 outPixelPos;

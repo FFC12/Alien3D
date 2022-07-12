@@ -4,6 +4,8 @@
 #include <Base.hpp>
 #include "ShaderManager.h"
 
+//TODO: Components*
+// need to change the way of handling compoenents (actually no components handler rn)
 class SpriteBatcher {
 public:
     SpriteBatcher() {
@@ -35,8 +37,6 @@ public:
     void batchedDrawCall() {
         update();
     }
-
-
 
     static Gfx_i32 GetBatchSize() {
         if (BatchSize <= 0) {
@@ -75,6 +75,8 @@ private:
         m_Buffer = std::make_unique<Buffer<f32>>(m_VertexDescriptor, BufferType::DYNAMIC);
         m_Buffer->setProgram(m_Shader.getProgram()).setBufferMaxCount().initBuffer();
         glCheckError();
+
+
     }
 
     void batchSprite(const std::shared_ptr<Sprite> &sprite) {
@@ -116,6 +118,10 @@ private:
                                                     temp.end());
 
         VertexDescriptor<f32>::BatchBuffer(m_VertexDescriptor, sprite->m_VertexDesc);
+
+        //TODO: Check if exist or not
+        sprite->attachComponent(&m_BatchTexture, "texture");
+        sprite->attachComponent(&m_Shader,"shader");
     }
 
     void batchNewSprites() {

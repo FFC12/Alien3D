@@ -60,6 +60,9 @@ void Sprite::initSprite(const std::string &path) {
         this->m_Model->m_Meshes.push_back(std::move(mesh));
         this->m_Model->initTextures(m_Shader.getProgram());
         glCheckError();
+
+        this->attachComponent(&m_Model->m_Meshes[0]->m_Texture,"texture");
+        this->attachComponent(&m_Shader,"shader");
     } else {
         static std::array<float, 28> vertices = {
                 -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -78,7 +81,4 @@ void Sprite::initSprite(const std::string &path) {
         this->m_VertexDesc.setHasIndices(true);
         this->m_VertexDesc.indices = std::move(std::vector<Gfx_u32>(indices.begin(), indices.end()));
     }
-
-    this->attachComponent(&m_Shader,"shader");
-    this->attachComponent(&m_Model->m_Meshes[0]->m_Texture,"texture");
 }

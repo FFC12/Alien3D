@@ -60,10 +60,10 @@ public:
                     auto angle = body->GetAngle();
 
                     auto *sprite = reinterpret_cast<Sprite *>(body->GetUserData().pointer);
+                    auto transform = sprite->getComponent<Transform>("transform");
                     if (body->GetType() != b2_staticBody) {
-                        sprite->m_Transformation->setPosition(Vector3(pos.x, pos.y, 0.0f));
-//                        sprite->m_Transformation->positionLerp(Vector3(pos.x, pos.y, 0.0f), 100 * AlienApplication::DeltaTime);
-                        sprite->m_Transformation->setRotation(angle);
+                        transform->setPosition(Vector3(pos.x, pos.y, 0.0f));
+                        transform->setRotation(angle);
                     }
                     body = body->GetNext();
                 }

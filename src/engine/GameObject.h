@@ -48,12 +48,13 @@ public:
 
     GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
+    // Careful! shared_ptr does not use as what it is *ref-counting*, instead function just gets the raw pointer
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void attachComponent(const std::shared_ptr<T> &component, const std::string &name) {
+    void attachComponent(std::shared_ptr<T> &component, const std::string &name) {
         if (this->m_Components.count(name) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
-            this->m_Components[name] = (Component *) component.get();
+            this->m_Components[name] = component.get();
         }
     }
 

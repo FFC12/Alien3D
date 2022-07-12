@@ -20,7 +20,7 @@ void main() {
     vec3 lightColor = AlienBasicLighting(outNormal, outPixelPos, true);
     FragColor = texture(_Diffuse, outTexCoord) * vec4(outColor, 1.0) *
                 vec4(lightColor, 1.0);
-    //         FragColor = vec4(outColor, 1.0) * vec4(lightColor,1.0);
+//             FragColor = vec4(outColor, 1.0) * vec4(lightColor,1.0);
   } else {
     vec2 uv = outTexCoord;
     vec2 distort = DistortedUV();

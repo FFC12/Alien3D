@@ -4,6 +4,7 @@
 #include <gfx/GfxBase.h>
 #include <engine/Light.h>
 #include <engine/SpriteAnimation.h>
+#include <engine/PhysicsBody.h>
 
 GameObject::GameObject(const std::string &name) {
     this->m_Name = name;

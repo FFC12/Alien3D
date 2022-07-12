@@ -36,7 +36,7 @@ void Texture::generateTexture(const char *path,
                               TextureWrappingMode wrappingModeT,
                               TextureFilteringMode filteringModeMin,
                               TextureFilteringMode filteringModeMag) {
-    if(path == nullptr) {
+    if (path == nullptr) {
         return;
     }
 
@@ -91,7 +91,8 @@ Gfx_u32 Texture::generateTexture(const char *path,
                                  TextureWrappingMode wrappingModeT,
                                  TextureFilteringMode filteringModeMin,
                                  TextureFilteringMode filteringModeMag) {
-
+//    this->m_ImagePath = std::string(path);
+    m_BatchImagePaths.emplace_back(path);
 
     Gfx_u32 textureId;
     glGenTextures(1, &textureId);

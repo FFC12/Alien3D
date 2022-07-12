@@ -10,8 +10,8 @@
 
 enum BodyType {
     Static = 0,
-    Dynamic,
-    Kinematic,
+    Dynamic = 1,
+    Kinematic = 2,
 };
 
 struct PhysicalMaterial {
@@ -25,7 +25,7 @@ public:
                 const PhysicalMaterial &physicalMaterial = {0.0f, 0.0f})
             : m_BodyType(bodyType) {
 
-        auto transform = sprite->getComponent<Transform>("physics_body");
+        auto transform = sprite->getComponent<Transform>("transform");
         m_Position = transform->getPosition();
         m_Angle = transform->getRotation().z;
         m_Bounds = transform->getScale();
@@ -72,13 +72,17 @@ public:
         center.x = c.x;
         center.y = c.y;
 
-        m_Body->ApplyForce(force, center, true);
+        if (m_Body != nullptr) {
+            m_Body->ApplyForce(force, center, true);
+        }
     }
 
     void applyForce(const Vector3 &f, float m) {
-        auto center = m_Body->GetWorldCenter();
-        Vector3 forceDirection = Vector3(f.x * m, f.y * m, 0.0f);
-        applyForce(forceDirection, Vector3(center.x, center.y, 0.0f));
+        if (m_Body != nullptr) {
+            auto center = m_Body->GetWorldCenter();
+            Vector3 forceDirection = Vector3(f.x * m, f.y * m, 0.0f);
+            applyForce(forceDirection, Vector3(center.x, center.y, 0.0f));
+        }
     }
 
     void applyForceImpulsive(const Vector3 &f, const Vector3 &c) {
@@ -89,21 +93,94 @@ public:
         center.x = c.x;
         center.y = c.y;
 
-        m_Body->ApplyLinearImpulse(force, center, true);
+        if (m_Body != nullptr) {
+            m_Body->ApplyLinearImpulse(force, center, true);
+        }
     }
 
     void applyForceImpulsive(const Vector3 &f, float m) {
-        auto center = m_Body->GetWorldCenter();
-        Vector3 forceDirection = Vector3(f.x * m, f.y * m, 0.0f);
-        applyForceImpulsive(forceDirection, Vector3(center.x, center.y, 0.0f));
+        if (m_Body != nullptr) {
+            auto center = m_Body->GetWorldCenter();
+            Vector3 forceDirection = Vector3(f.x * m, f.y * m, 0.0f);
+            applyForceImpulsive(forceDirection, Vector3(center.x, center.y, 0.0f));
+        }
     }
 
     Vector3 getLinearVelocity() {
-        auto v = m_Body->GetLinearVelocity();
-        return {v.x, v.y, 0.f};
+        if (m_Body != nullptr) {
+            auto v = m_Body->GetLinearVelocity();
+            return {v.x, v.y, 0.f};
+        } else {
+            return {0.0f, 0.0f, 0.0f};
+        }
+    }
+
+    void OnComponentWidgetDrawn() override {
+        physics2DWidget();
     }
 
 private:
+    void physics2DWidget() {
+        if (ImGui::TreeNode("Physics Body")) {
+            if (ImGui::TreeNode("Body Type")) {
+                static const char *p[3] = {"Static", "Dynamic", "Kinematic"};
+                for (int n = 0; n < 3; n++) {
+                    if (ImGui::Selectable(p[n], (int) m_BodyType == n)) {
+                        m_BodyType = (BodyType) n;
+
+                        b2BodyType bt;
+                        switch (m_BodyType) {
+                            case Static:
+                                bt = b2_staticBody;
+                                break;
+                            case Dynamic:
+                                bt = b2_dynamicBody;
+                                break;
+                            case Kinematic:
+                                bt = b2_kinematicBody;
+                                break;
+                        }
+
+                        if (m_Body->GetType() != bt) {
+                            m_Body->SetType(bt);
+                        }
+                    }
+                }
+
+                ImGui::TreePop();
+            }
+
+            ImGui::Separator();
+
+            auto lv = m_Body->GetLinearVelocity();
+            ImGui::Text("Linear Velocity: (%f , %f)", lv.x, lv.y);
+
+            auto av = m_Body->GetAngularVelocity();
+            ImGui::Text("Angular Velocity: %f", av);
+
+            auto pos = m_Body->GetPosition();
+            ImGui::Text("Position: (%.9g, %.9g)", pos.x, pos.y);
+
+            auto angle = m_Body->GetAngle();
+            ImGui::Text("Angle: %.9g", angle);
+
+            auto ld = m_Body->GetLinearDamping();
+            ImGui::Text("Linear Damping: %.9g", ld);
+
+            auto ad = m_Body->GetAngularVelocity();
+            ImGui::Text("Angular Damping: %.9g", ad);
+//            ImGui::Text("bd.allowSleep = bool(%d);\n", m_flags & e_autoSleepFlag);
+//            ImGui::Text("bd.awake = bool(%d);\n", m_flags & e_awakeFlag);
+//            ImGui::Text("bd.fixedRotation = bool(%d);\n", m_flags & e_fixedRotationFlag);
+
+            auto grav = m_Body->GetGravityScale();
+            ImGui::Text("Gravity Scale: %.9g", grav);
+
+            ImGui::Separator();
+            ImGui::TreePop();
+        }
+    }
+
     Vector3 m_Bounds;
     Vector3 m_Position;
     float m_Angle;
