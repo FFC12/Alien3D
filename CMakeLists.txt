@@ -17,9 +17,9 @@ if (GIT_FOUND)
 
     message(STATUS "Retrieving git submodules...2")
 
-    set(SUBMODULES lib/glm;lib/imgui/;lib/freetype;lib/glad;lib/glfw;lib/stb;lib/assimp;lib/box2d;)
-    set(REPOSITORIES https://github.com/g-truc/glm.git;https://github.com/ocornut/imgui.git;https://github.com/aseprite/freetype2.git;https://github.com/Dav1dde/glad.git;https://github.com/glfw/glfw.git;https://github.com/nothings/stb.git;https://github.com/assimp/assimp;https://github.com/erincatto/box2d.git;)
-    set(RELEASES 0.9.9.8;docking;master;master;3.3.7;master;master;main;)
+    set(SUBMODULES lib/glm;lib/imgui/;lib/freetype;lib/glad;lib/glfw;lib/stb;lib/assimp;lib/box2d;lib/lua;)
+    set(REPOSITORIES https://github.com/g-truc/glm.git;https://github.com/ocornut/imgui.git;https://github.com/aseprite/freetype2.git;https://github.com/Dav1dde/glad.git;https://github.com/glfw/glfw.git;https://github.com/nothings/stb.git;https://github.com/assimp/assimp;https://github.com/erincatto/box2d.git;https://github.com/walterschell/Lua.git;)
+    set(RELEASES 0.9.9.8;docking;master;master;3.3.7;master;master;main;master;)
 
     foreach (UPD_SUB IN LISTS SUBMODULES)
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --remote -- ${UPD_SUB} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE GIT_SUBMOD_RESULT)
@@ -115,7 +115,7 @@ endif ()
 
 message(STATUS "Setting up build options...")
 file(GLOB_RECURSE SRC_FILES "./src/*.h" "./src/*.cpp")
-add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/engine/SpriteBatcher.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h)
+add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/engine/SpriteBatcher.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h src/engine/SpriteBatcher.cpp)
 
 if (LIB_GLAD AND UNIX)
     set(CMAKE_CXX_FLAGS -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
@@ -157,6 +157,9 @@ set(ASSIMP_BUILD_SAMPLES OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 include_directories(${CMAKE_BINARY_DIR}/lib/assimp/include)
 target_link_libraries(Alien3d assimp)
+
+add_subdirectory(lib/lua)
+target_link_libraries(Alien3d lua_static)
 
 # sol3
 find_package(Lua REQUIRED)

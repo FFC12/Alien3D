@@ -6,14 +6,34 @@
 #include "engine/Light.h"
 
 #include <Application.h>
-#include <engine/GameObject.h>
-#include <engine/Sprite.h>
-#include <engine/SpriteAnimation.h>
-#include <engine/RenderQueue.h>
 #include <engine/AssetImporter.h>
 #include <api/LuaBridge.hpp>
-#include <engine/Physics2D.h>
-#include <engine/PhysicsBody.h>
+#include <engine/Scripting.h>
+
+int main() {
+    AlienApplication application(GfxDeviceType::GFX_OGL);
+
+    ALIEN_INFO("Creating application...");
+    if (!application.create(1920, 1080, "Alien3d")) {
+        ALIEN_ASSERT2("FAILED");
+    }
+
+    LuaObject &luaObject = LuaObject::getInstance();
+
+    auto onInit = [&]() {
+        Scripting::init();
+        luaObject.loadScriptFromFile(RESOURCE_PATH("scripts/myScript.lua"));
+        luaObject.onInit();
+    };
+
+    auto onUpdate = [&]() {
+        luaObject.onUpdate();
+    };
+
+    application.start(onInit, onUpdate, [&]() {}, false);
+
+    return 0;
+}
 
 //int main() {
 //    AlienApplication application(GfxDeviceType::GFX_OGL);
@@ -50,104 +70,106 @@
 //}
 
 
-int main() {
-    AlienApplication application(GfxDeviceType::GFX_OGL);
-
-    ALIEN_INFO("Creating application...");
-    if (!application.create(1920, 1080, "Alien3d")) {
-        ALIEN_ASSERT2("FAILED");
-    }
-
-    auto batchSize = SpriteBatcher::GetBatchSize();
-    ALIEN_INFO("Batch Size: " << batchSize);
-
-    std::shared_ptr<SpriteBatcher> spriteBatcher[1];
-    std::shared_ptr<Sprite> sprite[3];
-    std::shared_ptr<PhysicsBody> characterBody, groundBody;
-    RenderQueue renderer;
-    auto world = WorldSimulation::getInstance();
-
-    auto onInit = [&]() {
-        spriteBatcher[0] = std::make_shared<SpriteBatcher>();
-
-        //-- Character
-        spriteBatcher[0]->batch();
-        renderer.addQueue(spriteBatcher[0]);
-        sprite[0] = std::make_shared<Sprite>("test" + std::to_string(0), RESOURCE_PATH("sprite.png"), true, true);
-        spriteBatcher[0]->add(sprite[0]);
-        auto component = sprite[0]->getComponent<Transform>("transform");
-        component->setPosition(Vector3(0.0f, 20.0f, 0.0f));
-        component->setRotation(Vector3(0.0f, 0.0f, 0.0f));
-        component->setScale(Vector3(1.0f, 1.0f, 1.0f));
-        characterBody = std::make_shared<PhysicsBody>(sprite[0], BodyType::Dynamic,
-                                                      PhysicalMaterial{.friction=0.01f, .density=1.0f});
-        sprite[0]->attachComponent(characterBody, "physics_body");
-
-        //-- Ground
-        sprite[1] = std::make_shared<Sprite>("test" + std::to_string(1), RESOURCE_PATH("ground.png"), true, true);
-        spriteBatcher[0]->add(sprite[1]);
-        component = sprite[1]->getComponent<Transform>("transform");
-        component->setPosition(Vector3(0.0f, -4.0f, 0.0f));
-        component->setScale(Vector3(100.0, 20.0f, 1.0f));
-        groundBody = std::make_shared<PhysicsBody>(sprite[1], BodyType::Static);
-        sprite[1]->attachComponent(groundBody, "physics_body");
-
-        spriteBatcher[0]->batch();
-        renderer.addQueue(spriteBatcher[0]);
-
-//        sprite[2] = std::make_shared<Sprite>("test" + std::to_string(2), RESOURCE_PATH("sprite.png"), true, true);
-//        spriteBatcher->add(sprite[2]);
+//int main() {
+//    AlienApplication application(GfxDeviceType::GFX_OGL);
 //
-//        sprite[3] = std::make_shared<Sprite>("test" + std::to_string(3), RESOURCE_PATH("logo.png"), true, true);
-//        spriteBatcher->add(sprite[3]);
-
-    };
-
-    auto onUpdate = [&]() {
-        renderer.render();
-        world.step();
-    };
-
-    auto onKeyboardHandling = [&]() {
-        if (glfwGetKey(application.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(application.getWindow(), true);
-        }
-
-        auto component = sprite[0]->getComponent<PhysicsBody>("physics_body");
-        auto velocity = component->getLinearVelocity();
-
-//        bool allowed = false;
-//        if ((velocity.x < 0.1f && velocity.x > -0.1f) && (velocity.y < 0.1f && velocity.y > -0.1f)) {
-//            allowed = true;
+//    ALIEN_INFO("Creating application...");
+//    if (!application.create(1920, 1080, "Alien3d")) {
+//        ALIEN_ASSERT2("FAILED");
+//    }
+//
+//    auto batchSize = SpriteBatcher::GetBatchSize();
+//    ALIEN_INFO("Batch Size: " << batchSize);
+//
+//    std::shared_ptr<SpriteBatcher> spriteBatcher[1];
+//    std::shared_ptr<Sprite> sprite[3];
+//    std::shared_ptr<PhysicsBody> characterBody, groundBody;
+//    RenderQueue renderer;
+//    auto world = WorldSimulation::getInstance();
+//
+//    auto onInit = [&]() {
+//        Scripting::init();
+//
+//        spriteBatcher[0] = std::make_shared<SpriteBatcher>();
+//
+//        //-- Character
+//        spriteBatcher[0]->batch();
+//        renderer.addQueue(spriteBatcher[0]);
+//        sprite[0] = std::make_shared<Sprite>("test" + std::to_string(0), RESOURCE_PATH("sprite.png"), true, true);
+//        spriteBatcher[0]->add(sprite[0]);
+//        auto component = sprite[0]->getComponent<Transform>("transform");
+//        component->setPosition(Vector3(0.0f, 20.0f, 0.0f));
+//        component->setRotation(Vector3(0.0f, 0.0f, 0.0f));
+//        component->setScale(Vector3(1.0f, 1.0f, 1.0f));
+//        characterBody = std::make_shared<PhysicsBody>(sprite[0], BodyType::Dynamic,
+//                                                      PhysicalMaterial{.friction=0.01f, .density=1.0f});
+//        sprite[0]->attachComponent(characterBody, "physics_body");
+//
+//        //-- Ground
+//        sprite[1] = std::make_shared<Sprite>("test" + std::to_string(1), RESOURCE_PATH("ground.png"), true, true);
+//        spriteBatcher[0]->add(sprite[1]);
+//        component = sprite[1]->getComponent<Transform>("transform");
+//        component->setPosition(Vector3(0.0f, -4.0f, 0.0f));
+//        component->setScale(Vector3(100.0, 20.0f, 1.0f));
+//        groundBody = std::make_shared<PhysicsBody>(sprite[1], BodyType::Static);
+//        sprite[1]->attachComponent(groundBody, "physics_body");
+//
+//        spriteBatcher[0]->batch();
+//        renderer.addQueue(spriteBatcher[0]);
+//
+////        sprite[2] = std::make_shared<Sprite>("test" + std::to_string(2), RESOURCE_PATH("sprite.png"), true, true);
+////        spriteBatcher->add(sprite[2]);
+////
+////        sprite[3] = std::make_shared<Sprite>("test" + std::to_string(3), RESOURCE_PATH("logo.png"), true, true);
+////        spriteBatcher->add(sprite[3]);
+//
+//    };
+//
+//    auto onUpdate = [&]() {
+//        renderer.render();
+//        world.step();
+//    };
+//
+//    auto onKeyboardHandling = [&]() {
+//        if (glfwGetKey(application.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+//            glfwSetWindowShouldClose(application.getWindow(), true);
 //        }
-
-        if (glfwGetKey(application.getWindow(), GLFW_KEY_W) == GLFW_PRESS)
-            component->applyForceImpulsive(Vector3(0.0f, 1.0f, 0.0f), 100 * AlienApplication::DeltaTime);
-
-//        if (glfwGetKey(application.getWindow(), GLFW_KEY_S) == GLFW_PRESS)
-//            component->applyForceImpulsive(Vector3(-4.0f, 5.0f, 0.0f), 1);
-
-        if (glfwGetKey(application.getWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-//            if (allowed) {
-            component->applyForce(Vector3(-1.0f, 0.0f, 0.0f), 17);
-            auto transform = sprite[0]->getComponent<Transform>("transform");
-            transform->setScale(Vector3(-1.0f, 1.0f, 1.0f));
-//            }
-        }
-
-        if (glfwGetKey(application.getWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-//            if (allowed) {
-            component->applyForce(Vector3(1.0f, 0.0f, 0.0f), 17);
-            auto transform = sprite[0]->getComponent<Transform>("transform");
-            transform->setScale(Vector3(1.0f, 1.0f, 1.0f));
-//            }
-        }
-    };
-
-    application.start(onInit, onUpdate, onKeyboardHandling, true);
-
-    return 0;
-}
+//
+//        auto component = sprite[0]->getComponent<PhysicsBody>("physics_body");
+//        auto velocity = component->getLinearVelocity();
+//
+////        bool allowed = false;
+////        if ((velocity.x < 0.1f && velocity.x > -0.1f) && (velocity.y < 0.1f && velocity.y > -0.1f)) {
+////            allowed = true;
+////        }
+//
+//        if (glfwGetKey(application.getWindow(), GLFW_KEY_W) == GLFW_PRESS)
+//            component->applyForceImpulsive(Vector3(0.0f, 1.0f, 0.0f), 100 * AlienApplication::DeltaTime);
+//
+////        if (glfwGetKey(application.getWindow(), GLFW_KEY_S) == GLFW_PRESS)
+////            component->applyForceImpulsive(Vector3(-4.0f, 5.0f, 0.0f), 1);
+//
+//        if (glfwGetKey(application.getWindow(), GLFW_KEY_A) == GLFW_PRESS) {
+////            if (allowed) {
+//            component->applyForce(Vector3(-1.0f, 0.0f, 0.0f), 17);
+//            auto transform = sprite[0]->getComponent<Transform>("transform");
+//            transform->setScale(Vector3(-1.0f, 1.0f, 1.0f));
+////            }
+//        }
+//
+//        if (glfwGetKey(application.getWindow(), GLFW_KEY_D) == GLFW_PRESS) {
+////            if (allowed) {
+//            component->applyForce(Vector3(1.0f, 0.0f, 0.0f), 17);
+//            auto transform = sprite[0]->getComponent<Transform>("transform");
+//            transform->setScale(Vector3(1.0f, 1.0f, 1.0f));
+////            }
+//        }
+//    };
+//
+//    application.start(onInit, onUpdate, onKeyboardHandling, true);
+//
+//    return 0;
+//}
 
 //int main() {
 //    AlienApplication application(GfxDeviceType::GFX_OGL);

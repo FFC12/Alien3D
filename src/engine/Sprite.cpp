@@ -1,5 +1,33 @@
 #include "Sprite.h"
+#include <Application.h>
 #include "ShaderManager.h"
+
+Sprite::Sprite(const std::string &name, bool alpha) : GameObject(name), m_AlphaTrans(alpha) {
+    AlienApplication::Camera.setOrthoCamera(true);
+    AlienApplication::Camera.setPosition(Vector3(0.0f, 0.0f, 0.0f));
+
+    if (!Warning) {
+        ALIEN_INFO("Ortho camera is enabled since you created a sprite! *you supposed to be aware* ");
+        Warning = true;
+    }
+
+    // by default image
+}
+
+Sprite::Sprite(const std::string &name, const std::string &path, bool batch, bool alpha) : GameObject(name),
+                                                                                           m_ImagePath(path),
+                                                                                           m_IsBatcheable(batch),
+                                                                                           m_AlphaTrans(alpha) {
+    AlienApplication::Camera.setOrthoCamera(true);
+    AlienApplication::Camera.setPosition(Vector3(0.0f, 0.0f, 0.0f));
+
+    if (!Warning) {
+        ALIEN_INFO("Ortho camera is enabled since you created a sprite! *you supposed to be aware* ");
+        Warning = true;
+    }
+
+    initSprite(path);
+}
 
 void Sprite::initSprite(const std::string &path) {
     this->m_Renderable = true;
@@ -61,8 +89,8 @@ void Sprite::initSprite(const std::string &path) {
         this->m_Model->initTextures(m_Shader.getProgram());
         glCheckError();
 
-        this->attachComponent(&m_Model->m_Meshes[0]->m_Texture,"texture");
-        this->attachComponent(&m_Shader,"shader");
+        this->attachComponent(&m_Model->m_Meshes[0]->m_Texture, "texture");
+        this->attachComponent(&m_Shader, "shader");
     } else {
         static std::array<float, 28> vertices = {
                 -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -81,4 +109,6 @@ void Sprite::initSprite(const std::string &path) {
         this->m_VertexDesc.setHasIndices(true);
         this->m_VertexDesc.indices = std::move(std::vector<Gfx_u32>(indices.begin(), indices.end()));
     }
+
+    ALIEN_INFO("Sprite initialized");
 }

@@ -5,6 +5,7 @@
 #include <engine/Light.h>
 #include <engine/SpriteAnimation.h>
 #include <engine/PhysicsBody.h>
+#include <engine/RenderQueue.h>
 
 GameObject::GameObject(const std::string &name) {
     this->m_Name = name;
@@ -244,4 +245,6 @@ void GameObject::initObject() {
     } else {
         GameobjectList[objectName] = this;
     }
+
+    RenderQueue::getInstance().addQueue(this);
 }

@@ -9,8 +9,8 @@
 
 class RenderQueue {
 private:
-    std::unordered_map<std::string, std::shared_ptr<GameObject>> m_RenderQueue;
-    std::unordered_map<std::string, std::shared_ptr<SpriteBatcher>> m_BatchedRenderQueue;
+    std::unordered_map<std::string, GameObject *> m_RenderQueue;
+    std::unordered_map<std::string, SpriteBatcher *> m_BatchedRenderQueue;
 
     void renderGameObject(GameObject &gameObject) {
         if (gameObject.m_Renderable) {
@@ -22,14 +22,19 @@ private:
         spriteBatcher.batchedDrawCall();
     }
 
-public:
     RenderQueue() = default;
 
-    void addQueue(const std::shared_ptr<GameObject> &gameObject) {
+public:
+    static RenderQueue &getInstance() {
+        static RenderQueue ins;
+        return ins;
+    }
+
+    void addQueue(GameObject *gameObject) {
         m_RenderQueue[gameObject->m_ObjectUUID] = gameObject;
     }
 
-    void addQueue(const std::shared_ptr<SpriteBatcher> &spriteBatcher) {
+    void addBatchedQueue(SpriteBatcher *spriteBatcher) {
         m_BatchedRenderQueue[spriteBatcher->UUID] = spriteBatcher;
     }
 
@@ -44,12 +49,12 @@ public:
     }
 
     void render() {
-        static std::unordered_map<std::string, std::shared_ptr<GameObject>>::iterator gameObjectIter;
+        static std::unordered_map<std::string, GameObject *>::iterator gameObjectIter;
         for (gameObjectIter = m_RenderQueue.begin(); gameObjectIter != m_RenderQueue.end(); ++gameObjectIter) {
             this->renderGameObject(*gameObjectIter->second);
         }
 
-        static std::unordered_map<std::string, std::shared_ptr<SpriteBatcher>>::iterator batcherIter;
+        static std::unordered_map<std::string, SpriteBatcher *>::iterator batcherIter;
         for (batcherIter = m_BatchedRenderQueue.begin(); batcherIter != m_BatchedRenderQueue.end(); ++batcherIter) {
             this->renderSpriteBatcher(*batcherIter->second);
         }

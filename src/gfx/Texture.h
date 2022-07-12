@@ -110,13 +110,26 @@ public:
 private:
     void textureWidget() {
         if (ImGui::TreeNode("Texture")) {
-            for (const auto &imagePath: m_BatchImagePaths) {
-                auto image = TextureDataCache[imagePath];
-                auto unit = TextureCaches[imagePath];
+            if (m_ImagePath.empty()) {
+                for (const auto &imagePath: m_BatchImagePaths) {
+                    auto image = TextureDataCache[imagePath];
+                    auto unit = TextureCaches[imagePath];
+                    auto size = image->getImageSize();
+                    auto w = size.first;
+                    auto h = size.second;
+                    ImGui::BulletText("Path: %s", imagePath.c_str());
+//                ImGui::BulletText("Unit ID: %d", unit.second);
+                    ImGui::BulletText("Image Width: %d", w);
+                    ImGui::BulletText("Image Height: %d", h);
+                    ImGui::Separator();
+                }
+            } else {
+                auto image = TextureDataCache[m_ImagePath];
+                auto unit = TextureCaches[m_ImagePath];
                 auto size = image->getImageSize();
                 auto w = size.first;
                 auto h = size.second;
-                ImGui::BulletText("Path: %s", imagePath.c_str());
+                ImGui::BulletText("Path: %s", m_ImagePath.c_str());
 //                ImGui::BulletText("Unit ID: %d", unit.second);
                 ImGui::BulletText("Image Width: %d", w);
                 ImGui::BulletText("Image Height: %d", h);

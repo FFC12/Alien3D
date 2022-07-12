@@ -4,6 +4,8 @@
 #include <functional>
 #include <gfx/GfxBase.h>
 #include <gfx/WorldCamera.h>
+#include <engine/RenderQueue.h>
+#include <engine/Physics2D.h>
 
 #ifdef LIB_GLFW
 
@@ -80,7 +82,7 @@ public:
             if (!mouseFlag && m_MouseMoveable) {
                 mouseInputHandling();
                 if (!keyboardFlag) {
-                    if(overrideKeyword) {
+                    if (overrideKeyword) {
                         keyboardCallback();
                     } else {
                         keyboardInputHandling();
@@ -97,6 +99,9 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             Camera.updateCamera();
+
+            RenderQueue::getInstance().render();
+
             // draw calls
             updateCallback();
 
@@ -191,7 +196,6 @@ private:
         mouseBusy = io.WantCaptureMouse;
     }
 
-
 #ifdef LIB_GLFW
     GLFWwindow *m_Window = nullptr;
 #endif
@@ -199,7 +203,6 @@ private:
     bool m_ShouldClose = false;
     bool m_MouseMoveable = true;
     double m_OffsetX, m_OffsetY;
-
 
     //float m_DeltaTime {0.0f};
 };
