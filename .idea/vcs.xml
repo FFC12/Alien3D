@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/SDL" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/assimp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/box2d" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/freetype" vcs="Git" />
@@ -10,6 +11,7 @@
     <mapping directory="$PROJECT_DIR$/lib/glfw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/lua" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/stb" vcs="Git" />
   </component>
 </project>

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(Alien3d VERSION 1.0.0 DESCRIPTION "Project description" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Git)
+#find_package(Git)
 
 if (GIT_FOUND)
     if (NOT EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -17,9 +17,9 @@ if (GIT_FOUND)
 
     message(STATUS "Retrieving git submodules...2")
 
-    set(SUBMODULES lib/glm;lib/imgui/;lib/freetype;lib/glad;lib/glfw;lib/stb;lib/assimp;lib/box2d;lib/lua;)
-    set(REPOSITORIES https://github.com/g-truc/glm.git;https://github.com/ocornut/imgui.git;https://github.com/aseprite/freetype2.git;https://github.com/Dav1dde/glad.git;https://github.com/glfw/glfw.git;https://github.com/nothings/stb.git;https://github.com/assimp/assimp;https://github.com/erincatto/box2d.git;https://github.com/walterschell/Lua.git;)
-    set(RELEASES 0.9.9.8;docking;master;master;3.3.7;master;master;main;master;)
+    set(SUBMODULES lib/glm;lib/imgui/;lib/freetype;lib/glad;lib/glfw;lib/stb;lib/assimp;lib/box2d;lib/lua;lib/SDL;)
+    set(REPOSITORIES https://github.com/g-truc/glm.git;https://github.com/ocornut/imgui.git;https://github.com/aseprite/freetype2.git;https://github.com/Dav1dde/glad.git;https://github.com/glfw/glfw.git;https://github.com/nothings/stb.git;https://github.com/assimp/assimp;https://github.com/erincatto/box2d.git;https://github.com/walterschell/Lua.git;https://github.com/libsdl-org/SDL.git;)
+    set(RELEASES 0.9.9.8;docking;master;master;3.3.7;master;master;main;master;main;)
 
     foreach (UPD_SUB IN LISTS SUBMODULES)
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --remote -- ${UPD_SUB} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE GIT_SUBMOD_RESULT)
@@ -44,7 +44,7 @@ if (GIT_FOUND)
         endif ()
     endforeach ()
 else ()
-    message(FATAL_ERROR "Git not found.")
+    #    message(FATAL_ERROR "Git not found.")
 endif ()
 
 set(LIB_GLM ON)
@@ -130,13 +130,20 @@ target_link_libraries(Alien3d glad ${CMAKE_DL_LIBS})
 
 target_link_libraries(Alien3d glfw)
 
-find_package(SDL2 REQUIRED)
-target_link_libraries(Alien3d SDL2)
+if (UNIX)
+    find_package(SDL2 REQUIRED)
+elseif ()
+    add_subdirectory(lib/SDL)
+    include_directories(lib/SDL/include)
+    target_link_libraries(Alien3d SDL2)
+endif ()
 
-include(FindPkgConfig)
-pkg_check_modules(SDL2_Mixer REQUIRED IMPORTED_TARGET SDL2_mixer)
-#find_package(SDL2_mixer REQUIRED)
-target_link_libraries(Alien3d SDL2_mixer)
+if (UNIX)
+    include(FindPkgConfig)
+    pkg_check_modules(SDL2_Mixer REQUIRED IMPORTED_TARGET SDL2_mixer)
+    #find_package(SDL2_mixer REQUIRED)
+    target_link_libraries(Alien3d SDL2_mixer)
+endif ()
 
 if (UNIX)
     target_link_libraries(Alien3d X11)
@@ -162,10 +169,14 @@ add_subdirectory(lib/lua)
 target_link_libraries(Alien3d lua_static)
 
 # sol3
-find_package(Lua REQUIRED)
-include_directories(/usr/local/include ${LUA_INCLUDE_DIR})
+if (UNIX)
+    find_package(Lua REQUIRED)
+    include_directories(/usr/local/include ${LUA_INCLUDE_DIR})
+    target_link_libraries(Alien3d ${LUA_LIBRARIES})
+elseif ()
+    message("Windows selected")
+endif ()
 
-target_link_libraries(Alien3d ${LUA_LIBRARIES})
 include_directories(${CMAKE_BINARY_DIR}/lib/sol3/sol)
 
 # box2d
