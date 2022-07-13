@@ -20,14 +20,13 @@ class Sprite : public GameObject {
 public:
     explicit Sprite(const std::string &name, bool alpha);
 
-    Sprite(const std::string &name, const std::string &path, bool batch, bool alpha);
+    Sprite(const std::string &name, const std::string &path, bool alpha);
 
 private:
 
     void initSprite(const std::string &path);
 
     std::string m_ImagePath;
-    bool m_IsBatcheable{};
     bool m_AlphaTrans;
 
     VertexDescriptor<f32> m_VertexDesc;

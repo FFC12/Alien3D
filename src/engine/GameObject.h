@@ -48,9 +48,15 @@ public:
 
     GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
+//    ~GameObject() {
+//        for (auto &i: m_Components) {
+//            delete i.second;
+//        }
+//    }
+
     // Careful! shared_ptr does not use as what it is *ref-counting*, instead function just gets the raw pointer
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void attachComponent(std::shared_ptr<T> &component, const std::string &name) {
+    void attachComponentRC(std::shared_ptr<T> &component, const std::string &name) {
         if (this->m_Components.count(name) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
@@ -75,8 +81,12 @@ public:
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
     T *getComponent(const std::string &name) {
-        auto pos = this->m_Components.find(name);
-        return (T *) pos->second;
+        if (this->m_Components.count(name) > 0) {
+            auto pos = this->m_Components.find(name);
+            return ((T *) pos->second);
+        } else {
+            return nullptr;
+        }
     }
 
     std::string getObjectUUID() {
@@ -101,7 +111,7 @@ protected:
     Shader m_Shader;
     Texture m_Texture;
 
-    std::shared_ptr<Transform> m_Transformation;
+//    Transform m_Transformation;
     std::shared_ptr<Model> m_Model;
 
     bool m_Renderable{false};

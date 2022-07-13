@@ -4,7 +4,6 @@
 #include <box2d/box2d.h>
 #include "Base.hpp"
 #include "GameObject.h"
-#include <Application.h>
 #include <engine/Sprite.h>
 
 class PhysicsBody;
@@ -47,45 +46,13 @@ public:
         return ins;
     }
 
-    //
-    void step() {
-        if (m_World->GetBodyCount() > 0) {
-            for (i32 i = 0; i < 30; i++) {
-                auto bodies = m_World->GetBodyList();
-
-//                m_World->DebugDraw();
-                auto body = bodies;
-                while (body != nullptr) {
-                    auto pos = body->GetPosition();
-                    auto angle = body->GetAngle();
-
-                    auto *sprite = reinterpret_cast<Sprite *>(body->GetUserData().pointer);
-                    auto transform = sprite->getComponent<Transform>("transform");
-                    if (body->GetType() != b2_staticBody) {
-                        transform->setPosition(Vector3(pos.x, pos.y, 0.0f));
-                        transform->setRotation(angle);
-                    }
-                    body = body->GetNext();
-                }
-
-                m_World->Step(1.0f / 300.0f, 10, 20);
-            }
-
-            m_World->ClearForces();
-        }
-    }
-
+    void step();
 
 private:
-    WorldSimulation() {
-        m_World = std::make_shared<b2World>(Gravity);
-        m_World->SetDebugDraw(&m_DebugDraw);
-        m_DebugDraw.SetFlags(b2Draw::e_shapeBit);
-    }
+    WorldSimulation();
 
     std::shared_ptr<b2World> m_World;
     PhysicsDebug m_DebugDraw;
-    static inline b2Vec2 Gravity{0.0f, -10.0f};
 };
 
 

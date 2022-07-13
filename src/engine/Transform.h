@@ -7,14 +7,10 @@
 
 class GameObject;
 
-class SpriteBatcher;
-
 class Sprite;
 
 class Transform : public Component {
     friend class GameObject;
-
-    friend class SpriteBatcher;
 
     friend class Sprite;
 

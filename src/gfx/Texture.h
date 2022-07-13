@@ -26,8 +26,6 @@ enum TextureWrappingMode {
 
 class SpriteAnimation;
 
-class SpriteBatcher;
-
 class Texture : public Component {
     friend class SpriteAnimation;
 

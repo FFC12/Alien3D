@@ -7,6 +7,7 @@
 #include <engine/Component.h>
 #include <engine/Physics2D.h>
 #include "Sprite.h"
+#include <Application.h>
 
 enum BodyType {
     Static = 0,
@@ -21,11 +22,11 @@ struct PhysicalMaterial {
 
 class PhysicsBody : public Component {
 public:
-    PhysicsBody(std::shared_ptr<Sprite> &sprite, const BodyType &bodyType,
-                const PhysicalMaterial &physicalMaterial = {0.0f, 0.0f})
+    PhysicsBody(Sprite &sprite, const BodyType &bodyType,
+                const PhysicalMaterial &physicalMaterial = {0.1f, 1.0f})
             : m_BodyType(bodyType) {
 
-        auto transform = sprite->getComponent<Transform>("transform");
+        auto transform = sprite.getComponent<Transform>("transform");
         m_Position = transform->getPosition();
         m_Angle = transform->getRotation().z;
         m_Bounds = transform->getScale();
@@ -47,7 +48,7 @@ public:
         m_BodyDef.type = bt;
         m_BodyDef.position.Set(m_Position.x, m_Position.y);
         m_BodyDef.angle = m_Angle;
-        m_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(sprite.get());// reinterpret_cast<uintptr_t>(sprite->getObjectUUID().c_str());
+        m_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(&sprite);// reinterpret_cast<uintptr_t>(sprite->getObjectUUID().c_str());
         m_Body = WorldSimulation::getInstance().m_World->CreateBody(&m_BodyDef);
 
         if (bt != b2_staticBody) {

@@ -12,6 +12,7 @@
     <mapping directory="$PROJECT_DIR$/lib/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/imgui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/lua" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/pybind11" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/stb" vcs="Git" />
   </component>
 </project>

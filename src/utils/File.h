@@ -17,7 +17,7 @@ namespace Utils {
         std::string line;
         if (file.is_open()) {
             while (std::getline(file, line)) {
-                data += line;
+                data += line + "\n";
             }
 
             file.close();

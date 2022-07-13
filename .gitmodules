@@ -19,15 +19,12 @@
 [submodule "lib/assimp"]
 	path = lib/assimp
 	url = https://github.com/assimp/assimp
-[submodule "lib/sol3"]
-	path = lib/sol3
-	url = https://github.com/ThePhD/sol2.git
 [submodule "lib/box2d"]
 	path = lib/box2d
 	url = https://github.com/erincatto/box2d.git
-[submodule "lib/lua"]
-	path = lib/lua
-	url = https://github.com/walterschell/Lua.git
 [submodule "lib/SDL"]
 	path = lib/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "lib/pybind11"]
+	path = lib/pybind11
+	url = https://github.com/pybind/pybind11.git

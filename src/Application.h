@@ -101,7 +101,6 @@ public:
             Camera.updateCamera();
 
             RenderQueue::getInstance().render();
-
             // draw calls
             updateCallback();
 

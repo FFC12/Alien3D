@@ -5,7 +5,6 @@
 #include <imgui.h>
 #include <map>
 #include <functional>
-#include "api/LuaBridge.hpp"
 
 class EditorWindow {
 private:

@@ -60,7 +60,6 @@ void GameObject::initGameObject() {
 
 void GameObject::drawCall() {
     if (m_Renderable) {
-        ALIEN_ASSERT(m_Transformation != nullptr);
         m_Shader.useProgram();
 
         m_Shader.setFloat("_Time", AlienApplication::Time);
@@ -69,9 +68,10 @@ void GameObject::drawCall() {
             m_Shader.setBool("_HasLight", false);
             m_Shader.setBool("_IsSprite", true);
 
-            m_Transformation->updateTransform(true);
+            auto transform = this->getComponent<Transform>("transform");
+            transform->updateTransform(true);
 
-            auto modelMatrix = m_Transformation->getModelMatrix();
+            auto modelMatrix = transform->getModelMatrix();
             auto cameraPos = AlienApplication::Camera.getCameraPos();
 
             m_Shader.setUniform4("model", modelMatrix);
@@ -118,9 +118,10 @@ void GameObject::drawCall() {
                 m_Shader.setBool("_HasLight", false);
             }
 
-            m_Transformation->updateTransform(false);
+            auto transform = this->getComponent<Transform>("transform");
+            transform->updateTransform(false);
 
-            auto modelMatrix = m_Transformation->getModelMatrix();
+            auto modelMatrix = transform->getModelMatrix();
             auto viewMatrix = AlienApplication::Camera.getViewMatrix();
             auto projMatrix = AlienApplication::Camera.getProjMatrix();
 
@@ -230,8 +231,7 @@ void GameObject::components() {
 void GameObject::initObject() {
     this->m_ObjectUUID = Utils::getUUID();
 
-    this->m_Transformation = std::make_shared<Transform>();
-    this->m_Components["transform"] = this->m_Transformation.get();
+    this->m_Components["transform"] = new Transform();
 
     auto objectName = this->m_Name + ":" + this->m_ObjectUUID;
 
