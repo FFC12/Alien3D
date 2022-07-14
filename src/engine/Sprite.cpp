@@ -89,8 +89,4 @@ void Sprite::initSprite(const std::string &path) {
 
     this->attachComponent(&m_Model->m_Meshes[0]->m_Texture, "texture");
     this->attachComponent(&m_Shader, "shader");
-
-
-
-    ALIEN_INFO("Sprite initialized");
 }

@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include <glad/glad.h>
 #include "ShaderManager.h"
 #include <Application.h>
 #include <gfx/GfxBase.h>

@@ -4,6 +4,7 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/SDL" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/assimp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/b2draw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/box2d" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/freetype" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/freetype/subprojects/dlg" vcs="Git" />

@@ -100,9 +100,10 @@ public:
 
             Camera.updateCamera();
 
-            RenderQueue::getInstance().render();
-            // draw calls
             updateCallback();
+
+            // draw calls
+            RenderQueue::getInstance().render();
 
             //imgui draw calls
             GLFWImguiAdapter::ImGuiUpdate([]() {

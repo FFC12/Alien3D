@@ -30,5 +30,6 @@ PYBIND11_EMBEDDED_MODULE(alien3d, m) {
             .def(py::init<>())
             .def(py::init<const Vector3 &, const Vector3 &, const Vector3 &>())
             .def("setPosition", py::overload_cast<const Vector3 &>(&Transform::setPosition))
-            .def("setPosition", py::overload_cast<f32, f32>(&Transform::setPosition));
+            .def("setPosition", py::overload_cast<f32, f32>(&Transform::setPosition))
+            .def("setScale", &Transform::setScale);
 }
