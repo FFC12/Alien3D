@@ -5,7 +5,7 @@
 #include "Base.hpp"
 #include "GameObject.h"
 #include <engine/Sprite.h>
-#include <b2draw/DebugDraw.h>
+#include <engine/DebugDraw.h>
 
 class PhysicsBody;
 

@@ -116,9 +116,9 @@ endif ()
 message(STATUS "Setting up build options...")
 file(GLOB_RECURSE SRC_FILES "./src/*.h" "./src/*.cpp")
 #b2draw
-include_directories(lib/b2draw/include)
+#include_directories(src/b2draw/include)
 
-add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} lib/b2draw/src/DebugDraw.cpp lib/b2draw/src/PrimitiveRenderer.cpp src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h src/api/PythonBridge.cpp src/api/PythonBridge.h)
+add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/engine/DebugDraw.cpp src/engine/algorithm.h src/engine/DebugDraw.h src/engine/PrimitiveRenderer.cpp src/engine/PrimitiveRenderer.h src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h src/api/PythonBridge.cpp src/api/PythonBridge.h)
 
 if (LIB_GLAD AND UNIX)
     set(CMAKE_CXX_FLAGS -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
