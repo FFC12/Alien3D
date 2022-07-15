@@ -3,14 +3,16 @@
 #include <engine/PhysicsBody.h>
 #include <engine/Transform.h>
 #include <engine/Vector.h>
+#include <engine/SpriteAnimation.h>
 
 PYBIND11_EMBEDDED_MODULE(alien3d, m) {
     py::class_<Sprite>(m, "Sprite")
             .def(py::init<const std::string &, const std::string &, bool>())
             .def(py::init<const std::string &, bool>())
             .def("attachComponent", &Sprite::attachComponent<PhysicsBody>)
+            .def("attachComponent", &Sprite::attachComponent<SpriteAnimation>)
 //            .def("getComponent", &Sprite::getComponent<PhysicsBody>)
-            .def("getComponent", &Sprite::getComponent<Transform>);
+            .def("getComponent", &Sprite::getComponent<Transform>, py::return_value_policy::reference);
 
     py::enum_<BodyType>(m, "BodyType")
             .value("STATIC", BodyType::Static)
@@ -32,4 +34,8 @@ PYBIND11_EMBEDDED_MODULE(alien3d, m) {
             .def("setPosition", py::overload_cast<const Vector3 &>(&Transform::setPosition))
             .def("setPosition", py::overload_cast<f32, f32>(&Transform::setPosition))
             .def("setScale", &Transform::setScale);
+
+    py::class_<SpriteAnimation>(m, "SpriteAnimation")
+            .def(py::init<Sprite &>())
+            .def(py::init<Sprite &, u32, u32>());
 }

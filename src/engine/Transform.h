@@ -24,6 +24,10 @@ public:
 //        COMPONENT_WIDGET_REGISTRY("transform", Transform::transformWidget);
     }
 
+    ~Transform() {
+        m_RegisteredCallbacks.clear();
+    }
+
     void setModelMatrix(glm::mat4 &m) {
         m_ModelMatrix = m;
     }
@@ -186,7 +190,7 @@ private:
     Vector3 m_Rotation;
     Vector3 m_Scale;
 
-    std::vector<std::function<void(const Vector3 &, const Vector3 &, const Vector3 &)>> m_RegisteredCallbacks;
+    std::vector<std::function<void(Vector3 &, Vector3 &, Vector3 &)>> m_RegisteredCallbacks;
 
     glm::mat4 m_ModelMatrix{1.0f};
 };

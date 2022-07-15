@@ -1,5 +1,11 @@
 from alien3d import * 
 
+exp = Sprite("explosion", "../res/assets/explosion_3.png", True)
+t = exp.getComponent("transform")
+t.setPosition(-2.0,0.0)
+anim = SpriteAnimation(exp,682,682)
+exp.attachComponent(anim,"sprite_animation")
+
 s = Sprite("character", "../res/sprite.png", True)
 t = s.getComponent("transform")
 t.setPosition(0.0,10.0)

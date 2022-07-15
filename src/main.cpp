@@ -1,15 +1,8 @@
 #include <iostream>
 #include <memory>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "engine/Light.h"
-
 #include <Application.h>
-#include <engine/AssetImporter.h>
 #include <engine/Scripting.h>
-#include <api/PythonBridge.h>
-#include <engine/Physics2D.h>
 
 int main() {
     AlienApplication application(GfxDeviceType::GFX_OGL);
@@ -19,20 +12,14 @@ int main() {
         ALIEN_ASSERT2("FAILED");
     }
 
-    PythonBridge pythonBridge;
-    WorldSimulation simulation = WorldSimulation::getInstance();
-//    Sprite sprite("test", "../res/sprite.png", true);
-//    PhysicsBody physicsBody(sprite, BodyType::Dynamic);
-
+    Scripting script;
     auto onInit = [&]() {
         Scripting::init();
-        pythonBridge.loadPythonScriptFromFile(RESOURCE_PATH("scripts/script.py"));
-//        sprite.attachComponent(&physicsBody, "physics_body");
+        script.loadScriptFromFile(RESOURCE_PATH("scripts/script.py"));
+        Scripting::run();
     };
 
     auto onUpdate = [&]() {
-        WorldSimulation::getInstance().debugDrawRender();
-        WorldSimulation::getInstance().step();
     };
 
     application.start(onInit, onUpdate, [&]() {}, false);

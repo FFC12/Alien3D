@@ -2,7 +2,9 @@
 #define ALIEN3D_WORLDCAMERA_H
 
 #include <Base.hpp>
+#include <editor/EditorWindow.h>
 #include <gfx/GfxBase.h>
+#include <engine/Vector.h>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 

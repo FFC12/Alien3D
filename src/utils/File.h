@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "Base.hpp"
 
 namespace Utils {
     //TODO: Maybe you can change the read file function
@@ -12,18 +13,23 @@ namespace Utils {
         std::string data;
 
         std::ifstream file;
-        file.open(path.c_str());
+        if (file.good()) {
+            file.open(path.c_str());
 
-        std::string line;
-        if (file.is_open()) {
-            while (std::getline(file, line)) {
-                data += line + "\n";
+            std::string line;
+            if (file.is_open()) {
+                while (std::getline(file, line)) {
+                    data += line + "\n";
+                }
+
+                file.close();
             }
 
-            file.close();
+            return std::move(data);
+        } else {
+            ALIEN_ERROR("File does not exist!");
+            return "";
         }
-
-        return std::move(data);
     }
 }
 

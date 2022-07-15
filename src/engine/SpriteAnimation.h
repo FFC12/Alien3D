@@ -16,11 +16,10 @@ class SpriteAnimation : public Component {
     using Time = std::chrono::duration<float, std::milli>;
     using Clock = std::chrono::high_resolution_clock;
 public:
-    explicit SpriteAnimation(std::shared_ptr<Sprite> &sprite, u32 x = 32, u32 y = 32) : m_X(x), m_Y(y) {
-        m_Sprite = sprite;
+    explicit SpriteAnimation(Sprite &sprite, u32 x = 32, u32 y = 32) : m_X(x), m_Y(y), m_Sprite(sprite) {
         m_AnimID = ID++;
 
-        auto image = Texture::TextureDataCache[m_Sprite->m_ImagePath];
+        auto image = Texture::TextureDataCache[m_Sprite.m_ImagePath];
         auto imageSize = image->getImageSize();
 
         m_W = imageSize.first;
@@ -44,6 +43,7 @@ public:
     }
 
 private:
+
     void animate() {
         if (m_Play) {
             Time diff = Clock::now() - m_Start;
@@ -62,12 +62,12 @@ private:
                     m_FrameX += 1;
                 }
 
-                m_Sprite->m_Shader.setFloat("_Height", (float) m_H);
-                m_Sprite->m_Shader.setFloat("_Width", (float) m_W);
-                m_Sprite->m_Shader.setBool("_Animation", true);
-                m_Sprite->m_Shader.setFloat("_FrameSizeX", m_X);
-                m_Sprite->m_Shader.setFloat("_FrameSizeY", m_Y);
-                m_Sprite->m_Shader.setVector2("_FrameI", glm::vec2((f32) m_FrameX, (f32) m_FrameY));
+                m_Sprite.m_Shader.setFloat("_Height", (float) m_H);
+                m_Sprite.m_Shader.setFloat("_Width", (float) m_W);
+                m_Sprite.m_Shader.setBool("_Animation", true);
+                m_Sprite.m_Shader.setFloat("_FrameSizeX", m_X);
+                m_Sprite.m_Shader.setFloat("_FrameSizeY", m_Y);
+                m_Sprite.m_Shader.setVector2("_FrameI", glm::vec2((f32) m_FrameX, (f32) m_FrameY));
                 m_Start = Clock::now();
             }
         }
@@ -91,7 +91,7 @@ private:
 
     Clock::time_point m_Start;
 
-    std::shared_ptr<Sprite> m_Sprite;
+    Sprite &m_Sprite;
     float m_X, m_Y;
     u32 m_W, m_H;
     u32 m_FrameX{0}, m_FrameY{1};

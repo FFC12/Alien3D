@@ -76,7 +76,7 @@ public:
 #ifdef LIB_GLFW
         Camera.setWindowSize(WIDTH, HEIGHT);
         initCallback();
-        glEnable(GL_DEPTH_TEST);
+        WorldSimulation simulation = WorldSimulation::getInstance();
 
         static float lastFrame = 0.0f;
         bool mouseFlag = false, keyboardFlag = false;
@@ -121,8 +121,14 @@ public:
 
             updateCallback();
 
+            WorldSimulation::getInstance().debugDrawRender();
+            WorldSimulation::getInstance().step();
+
             // draw calls
             RenderQueue::getInstance().render();
+
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
 
             //imgui draw calls
             GLFWImguiAdapter::ImGuiUpdate([]() {

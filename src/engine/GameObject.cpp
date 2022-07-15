@@ -7,6 +7,7 @@
 #include <engine/SpriteAnimation.h>
 #include <engine/PhysicsBody.h>
 #include <engine/RenderQueue.h>
+#include <engine/Scripting.h>
 
 GameObject::GameObject(const std::string &name) {
     this->m_Name = name;
@@ -215,6 +216,38 @@ void GameObject::GameobjectWidget() {
 
             } else {
 
+            }
+
+            static bool attachScript = false;
+
+            if (ImGui::Button("Attach Script")) {
+                attachScript = true;
+            }
+
+            if (attachScript) {
+                ImGui::Text("Enter script name (res/scripts/...) :");
+
+                static char buffer[128];
+
+                ImGui::InputText("Path", &buffer[0], IM_ARRAYSIZE(buffer));
+                auto n = std::strlen(buffer);
+                std::string path(buffer, n);
+
+                if (ImGui::Button("Done")) {
+                    ALIEN_INFO("Done: " + RESOURCE_PATH(path));
+                    auto script = new Scripting(RESOURCE_PATH(path));
+                    auto pos = path.find_last_of('.');
+                    auto compName = path.substr(0, pos);
+                    gameObject->second->attachComponent(script, compName);
+                    attachScript = false;
+                    std::memset(&buffer[0], 0, sizeof(buffer));
+                }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button("Cancel")) {
+                    attachScript = false;
+                }
             }
 
             ImGui::End();

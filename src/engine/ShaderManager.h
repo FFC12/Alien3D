@@ -5,6 +5,7 @@
 #include <optional>
 #include <Base.hpp>
 #include <gfx/GfxBase.h>
+#include <utils/File.h>
 #include <gfx/Shader.h>
 #include <utils/ShaderParser.h>
 
