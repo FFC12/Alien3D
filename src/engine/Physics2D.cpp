@@ -5,7 +5,6 @@ void WorldSimulation::step() {
     if (m_World != nullptr) {
 
         // make this more efficient since it's keep copying b2vec2
-        ALIEN_INFO("Graivit y at impl: " << m_GravityY);
         m_World->SetGravity(b2Vec2(m_GravityX, m_GravityY));
 
         if (m_World->GetBodyCount() > 0) {
@@ -28,11 +27,6 @@ void WorldSimulation::step() {
                         transform->setRotation(angle);
                     }
 
-                    if (m_DontLetSleep)
-                        body->SetAwake(true);
-                    else
-                        body->SetAwake(false);
-
                     body = body->GetNext();
                 }
 
@@ -53,15 +47,17 @@ void WorldSimulation::step() {
 WorldSimulation::WorldSimulation() {
     b2Vec2 gravity(0.0f, -10.0f);
 
-    // Create OpenGL shaders and program.
+    // Debug (quick&dirty)
     std::string const vertSrc = R"(
 #version 330 core
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec4 colour;
 out vec4 fsColour;
-uniform mat4 MVP;
+uniform mat4 M;
+uniform vec3 cameraPos;
 void main() {
-	gl_Position =  MVP * vec4(position.x, position.y, 0, 1);
+    vec4 result = M * vec4(vec3(position,1.0), 1.0);
+    gl_Position = result + vec4(cameraPos,1.0);
 	fsColour = colour;
 }
 	)";
@@ -71,24 +67,18 @@ void main() {
 in vec4 fsColour;
 out vec4 fragColour;
 void main() {
-	fragColour = vec4(fsColour.xyz,0.1);
+	fragColour = fsColour; //vec4(fsColour.xyz,0.1);
 }
     )";
     m_Shader.createShader(vertSrc, fragSrc);
     m_DebugDrawID = m_Shader.getProgram();
 
-    auto model = glm::mat4(1.0f);
-    auto view = AlienApplication::Camera.getViewMatrix();
-    auto proj = AlienApplication::Camera.getProjMatrix();
-
-    static glm::mat4x4 const MVP = proj * view * model;
-    m_MVPPtr = &MVP[0][0];
-    m_MVPLoc = glGetUniformLocation(m_DebugDrawID, "MVP");
+    m_Model = glm::mat4(1.0f);
 
     m_DebugDraw = std::make_shared<b2draw::DebugDraw>(
             glGetAttribLocation(m_DebugDrawID, "position"),
             glGetAttribLocation(m_DebugDrawID, "colour"),
-            16, 0.01f, 4.0f);
+            16, 0.04f, 4.0f);
 
     m_DebugDraw->SetFlags(b2Draw::e_shapeBit);
     m_World = std::make_shared<b2World>(gravity);
@@ -96,4 +86,9 @@ void main() {
     m_World->SetDebugDraw(nullptr);
 
     COMPONENT_WIDGET_REGISTRY("world_simulation", WorldSimulation::worldSimulationWidget);
+}
+
+void WorldSimulation::setCameraPos() {
+    auto cameraPos = AlienApplication::Camera.getCameraPos();
+    m_Shader.setVector3("cameraPos", cameraPos);
 }

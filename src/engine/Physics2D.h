@@ -9,6 +9,18 @@
 
 class PhysicsBody;
 
+struct SimulationConfig {
+    f32 gravityY{-9.8f};
+    f32 gravityX{0.0f};
+    f32 stepCount{300.0f};
+
+    i32 velocityIter{10};
+    i32 positionIter{20};
+
+    bool dontLetSleep{false};
+    bool debugPhysics{false};
+};
+
 class WorldSimulation {
     friend class PhysicsBody;
 
@@ -26,14 +38,29 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(m_DebugDrawID);
             glCheckError();
-            glUniformMatrix4fv(m_MVPLoc, 1, GL_FALSE, m_MVPPtr);
+
+            setCameraPos();
+            glCheckError();
+
+            m_Shader.setUniform4("M", m_Model);
+//            glUniformMatrix4fv(m_MVPLoc, 1, GL_FALSE, m_MVPPtr);
             glCheckError();
             m_DebugDraw->Render();
         }
     }
 
+    void setSimulationConfig(const SimulationConfig &config) {
+        this->m_GravityX = config.gravityX;
+        this->m_GravityY = config.gravityY;
+        this->m_StepCount = config.stepCount;
+        this->m_VelocityIter = config.velocityIter;
+        this->m_PositionIter = config.positionIter;
+    }
+
 private:
     WorldSimulation();
+
+    void setCameraPos();
 
     void worldSimulationWidget() {
         if (ImGui::Begin("World Simulation")) {
@@ -46,12 +73,10 @@ private:
             if (ImGui::TreeNode("Settings")) {
                 ImGui::DragFloat("Gravity X", &this->m_GravityX);
                 ImGui::DragFloat("Gravity Y", &this->m_GravityY);
-                ALIEN_INFO("Graivit y at first place: " << m_GravityY);
                 ImGui::DragFloat("Step Count", &this->m_StepCount);
                 ImGui::DragInt("Velocity Iteration", &this->m_VelocityIter, 1.0f, 0, 50);
                 ImGui::DragInt("Position Iteration", &this->m_PositionIter, 1.0f, 0, 50);
                 ImGui::Checkbox("Debug Physics", &this->m_DebugPhysics);
-                ImGui::Checkbox("Don't Let Sleep", &this->m_DontLetSleep);
 
                 if (this->m_DebugPhysics) {
                     m_World->SetDebugDraw(m_DebugDraw.get());
@@ -71,15 +96,13 @@ private:
     i32 m_VelocityIter{10};
     i32 m_PositionIter{20};
     i32 m_BodyCount{0};
-    bool m_DontLetSleep {false};
     bool m_DebugPhysics{false};
 
     // Debug Draw
     Shader m_Shader;
     std::shared_ptr<b2draw::DebugDraw> m_DebugDraw;
     Gfx_u32 m_DebugDrawID;
-    const Gfx_f32 *m_MVPPtr;
-    Gfx_i32 m_MVPLoc;
+    glm::mat4 m_Model;
 
     std::shared_ptr<b2World> m_World;
 };

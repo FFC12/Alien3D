@@ -31,8 +31,8 @@ int main() {
     };
 
     auto onUpdate = [&]() {
-        WorldSimulation::getInstance().step();
         WorldSimulation::getInstance().debugDrawRender();
+        WorldSimulation::getInstance().step();
     };
 
     application.start(onInit, onUpdate, [&]() {}, false);

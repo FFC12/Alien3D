@@ -3,7 +3,7 @@ from alien3d import *
 s = Sprite("character", "../res/sprite.png", True)
 t = s.getComponent("transform")
 t.setPosition(0.0,10.0)
-v = Vec3(0.1,0.1,0.1)
+v = Vec3(0.2,0.2,0.2)
 t.setScale(v)
 b = PhysicsBody(s, BodyType.DYNAMIC)
 s.attachComponent(b,"physics_body")

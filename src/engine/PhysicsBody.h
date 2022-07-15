@@ -8,6 +8,8 @@
 #include <engine/Physics2D.h>
 #include "Sprite.h"
 #include <Application.h>
+#include <utils/Helper.h>
+#include <functional>
 
 enum BodyType {
     Static = 0,
@@ -27,10 +29,15 @@ public:
             : m_BodyType(bodyType) {
 
         auto transform = sprite.getComponent<Transform>("transform");
+        transform->registerCallback([&](const Vector3 &p, const Vector3 &r, const Vector3 &s) {
+            transformEventHandler(p, r, s);
+        });
+
         m_Position = transform->getPosition();
         m_Angle = transform->getRotation().z;
-        m_Bounds = transform->getScale();
-        m_Bounds.y *= ((float) AlienApplication::HEIGHT / (float) AlienApplication::WIDTH) - 0.3f;
+        auto scale = transform->getScale();
+        m_Bounds = Vector3(scale.x, scale.y, 0.5f);
+//        m_Bounds = transform->getScale();
 
         b2BodyType bt;
         switch (bodyType) {
@@ -51,18 +58,30 @@ public:
         m_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(&sprite);// reinterpret_cast<uintptr_t>(sprite->getObjectUUID().c_str());
         m_Body = WorldSimulation::getInstance().m_World->CreateBody(&m_BodyDef);
 
+        // When deserialized, this is what it needs.
+        m_Body->SetAwake(!m_AllowSleep);
+
         if (bt != b2_staticBody) {
             m_Fixture.friction = physicalMaterial.friction;
             m_Fixture.density = physicalMaterial.density;
         }
 
-        m_Shape.SetAsBox(m_Bounds.x, m_Bounds.y);
+        b2Vec2 vertices[4];
+        vertices[0] = b2Vec2(-m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);
+        vertices[1] = b2Vec2(m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);
+        vertices[2] = b2Vec2(m_Bounds.x + m_BoundsCenter.x, m_Bounds.y + m_BoundsCenter.y);
+        vertices[3] = b2Vec2(-m_Bounds.x + m_BoundsCenter.x, m_Bounds.y + m_BoundsCenter.y);
+
+        m_Shape.Set(&vertices[0], 4);
+//        m_Shape.SetAsBox(m_Bounds.x, m_Bounds.y);
         if (bt == b2_staticBody) {
             m_Body->CreateFixture(&m_Shape, 0.0f);
         } else {
             m_Fixture.shape = &m_Shape;
             m_Body->CreateFixture(&m_Fixture);
         }
+
+        m_Body->SetTransform(b2Vec2(m_Position.x, m_Position.y), m_Angle);
     }
 
     void applyForce(const Vector3 &f, const Vector3 &c) {
@@ -121,6 +140,10 @@ public:
     }
 
 private:
+    void transformEventHandler(const Vector3 &p, const Vector3 &r, const Vector3 &s) {
+        m_Body->SetTransform(b2Vec2(p.x, p.y), r.z);
+    }
+
     void physics2DWidget() {
         if (ImGui::TreeNode("Physics Body")) {
             if (ImGui::TreeNode("Body Type")) {
@@ -170,8 +193,54 @@ private:
 
             auto ad = m_Body->GetAngularVelocity();
             ImGui::Text("Angular Damping: %.9g", ad);
-//            ImGui::Text("bd.allowSleep = bool(%d);\n", m_flags & e_autoSleepFlag);
-//            ImGui::Text("bd.awake = bool(%d);\n", m_flags & e_awakeFlag);
+
+            ImGui::Checkbox("Allow Sleep", &m_AllowSleep);
+//            if (s) {
+            if (m_AllowSleep) {
+                m_Body->SetAwake(false);
+            } else {
+                m_Body->SetAwake(true);
+            }
+//            }
+
+            static Vector3 lastBounds{m_Bounds.x, m_Bounds.y, m_Bounds.z};
+            static Vector3 lastBoundsCenter{m_BoundsCenter.x, m_BoundsCenter.y, m_BoundsCenter.z};
+
+            bool cx = ImGui::DragFloat("Center X", &m_BoundsCenter.x, 0.01f);
+            bool cy = ImGui::DragFloat("Center Y", &m_BoundsCenter.y, 0.01f);
+
+            bool bx = ImGui::DragFloat("Bounding Box X", &m_Bounds.x, 0.01f, 0.01f, 100.0f);
+            bool by = ImGui::DragFloat("Bounding Box Y", &m_Bounds.y, 0.01f, 0.01f, 100.0f);
+
+            if (bx || by || cx || cy) {
+                static b2Vec2 vertices[4];
+
+                vertices[0] = b2Vec2(-m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);
+                vertices[1] = b2Vec2(m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);
+                vertices[2] = b2Vec2(m_Bounds.x + m_BoundsCenter.x, m_Bounds.y + m_BoundsCenter.y);
+                vertices[3] = b2Vec2(-m_Bounds.x + m_BoundsCenter.x, m_Bounds.y + m_BoundsCenter.y);
+
+//                m_Shape.SetAsBox(m_Bounds.x, m_Bounds.y);
+
+                // there is only one fixture for the body.
+                m_Body->DestroyFixture(m_Body->GetFixtureList());
+
+                m_Shape.Set(&vertices[0], 4);
+
+                m_Body->CreateFixture(&m_Shape, 1.0f);
+
+                if (cx || cy) {
+                    lastBoundsCenter.x = m_BoundsCenter.x;
+                    lastBoundsCenter.y = m_BoundsCenter.y;
+                }
+
+                if (bx || by) {
+                    lastBounds.x = m_Bounds.x;
+                    lastBounds.y = m_Bounds.y;
+                }
+            }
+
+            ImGui::Text("Awake: %s", m_Body->IsAwake() ? "true" : "false");
 //            ImGui::Text("bd.fixedRotation = bool(%d);\n", m_flags & e_fixedRotationFlag);
 
             auto grav = m_Body->GetGravityScale();
@@ -182,8 +251,11 @@ private:
         }
     }
 
-    Vector3 m_Bounds;
-    Vector3 m_Position;
+    Vector3 m_BoundsCenter{0.0f, 0.0f, 0.0f};
+    Vector3 m_Bounds{0.0f, 0.0f, 0.0f};
+
+    Vector3 m_Position{0.0f, 0.0f, 0.0f};
+    bool m_AllowSleep{false};
     float m_Angle;
     BodyType m_BodyType;
 

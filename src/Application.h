@@ -34,24 +34,35 @@ public:
 
     bool create(unsigned int width, unsigned int height, const char *title) {
 #ifdef LIB_GLFW
-        if (m_GfxDeviceType == GFX_OGL) {
-            destroyWindow();
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        destroyWindow();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-            WIDTH = width;
-            HEIGHT = height;
+        GLFWimage glfwImage;
 
-            if (!m_Window) {
-                return false;
-            }
+        Image image("../res/logo_128x128.png", true);
+        auto imageSize = image.getImageSize();
+
+        glfwImage.pixels = image.getData().get();
+        glfwImage.width = imageSize.first;
+        glfwImage.height = imageSize.second;
+
+        glfwSetWindowIcon(m_Window, 1, &glfwImage);
+
+        WIDTH = width;
+        HEIGHT = height;
+
+        if (!m_Window) {
+            return false;
+        }
 
 //            glfwSetScrollCallback(m_Window,&AlienApplication::scrollCallback);
-            glfwMakeContextCurrent(m_Window);
-            GLFWImguiAdapter::ImguiImplGlfw(this->m_Window);
+        glfwMakeContextCurrent(m_Window);
 
-            ALIEN_INFO("Initializing GFX...");
+        ALIEN_INFO("Initializing GFX...");
+        if (m_GfxDeviceType == GFX_OGL) {
+            GLFWImguiAdapter::ImguiImplGlfw(this->m_Window);
             GfxBase::CreateGfxDevice(this->m_GfxDeviceType);
         } else if (m_GfxDeviceType == GFX_VK) {
             // Vulkan..
@@ -203,7 +214,6 @@ private:
     bool m_ShouldClose = false;
     bool m_MouseMoveable = true;
     double m_OffsetX, m_OffsetY;
-
     //float m_DeltaTime {0.0f};
 };
 
