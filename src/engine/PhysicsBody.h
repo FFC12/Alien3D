@@ -34,10 +34,9 @@ public:
         });
 
         m_Position = transform->getPosition();
-        m_Angle = transform->getRotation().z;
+        m_Angle = transform->getRotation().z * (float) (M_PI / 180);
         auto scale = transform->getScale();
         m_Bounds = Vector3(scale.x, scale.y, 0.5f);
-//        m_Bounds = transform->getScale();
 
         b2BodyType bt;
         switch (bodyType) {
@@ -57,6 +56,7 @@ public:
         m_BodyDef.angle = m_Angle;
         m_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(&sprite);// reinterpret_cast<uintptr_t>(sprite->getObjectUUID().c_str());
         m_Body = WorldSimulation::getInstance().m_World->CreateBody(&m_BodyDef);
+        m_Body->SetTransform(b2Vec2(m_Position.x, m_Position.y), m_Angle);
 
         // When deserialized, this is what it needs.
         m_Body->SetAwake(!m_AllowSleep);
@@ -80,8 +80,6 @@ public:
             m_Fixture.shape = &m_Shape;
             m_Body->CreateFixture(&m_Fixture);
         }
-
-        m_Body->SetTransform(b2Vec2(m_Position.x, m_Position.y), m_Angle);
     }
 
     void applyForce(const Vector3 &f, const Vector3 &c) {
@@ -141,7 +139,7 @@ public:
 
 private:
     void transformEventHandler(const Vector3 &p, const Vector3 &r, const Vector3 &s) {
-        m_Body->SetTransform(b2Vec2(p.x, p.y), r.z);
+        m_Body->SetTransform(b2Vec2(p.x, p.y), r.z * (float) (M_PI / 180));
     }
 
     void physics2DWidget() {

@@ -37,7 +37,6 @@ public:
         if (m_DebugPhysics) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(m_DebugDrawID);
-            glCheckError();
 
             setCameraPos();
             glCheckError();

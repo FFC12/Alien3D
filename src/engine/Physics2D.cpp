@@ -56,7 +56,7 @@ out vec4 fsColour;
 uniform mat4 M;
 uniform vec3 cameraPos;
 void main() {
-    vec4 result = M * vec4(vec3(position,1.0), 1.0);
+    vec4 result = M * vec4(vec3(position,0.0), 1.0);
     gl_Position = result + vec4(cameraPos,1.0);
 	fsColour = colour;
 }
@@ -67,7 +67,7 @@ void main() {
 in vec4 fsColour;
 out vec4 fragColour;
 void main() {
-	fragColour = fsColour; //vec4(fsColour.xyz,0.1);
+	fragColour = vec4(fsColour.x,fsColour.y, fsColour.z,fsColour.w);
 }
     )";
     m_Shader.createShader(vertSrc, fragSrc);
@@ -78,7 +78,7 @@ void main() {
     m_DebugDraw = std::make_shared<b2draw::DebugDraw>(
             glGetAttribLocation(m_DebugDrawID, "position"),
             glGetAttribLocation(m_DebugDrawID, "colour"),
-            16, 0.04f, 4.0f);
+            16, 0.6f, 4.0f);
 
     m_DebugDraw->SetFlags(b2Draw::e_shapeBit);
     m_World = std::make_shared<b2World>(gravity);

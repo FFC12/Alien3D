@@ -112,11 +112,11 @@ private:
             m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(m_Position.x, m_Position.y, m_Position.z));
         } else {
             m_ModelMatrix = glm::mat4(1.0f);
+            m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(m_Position.x, m_Position.y, 0.0f));
             m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(m_Scale.x, m_Scale.y, 1.0f));
 //            m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 //            m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
             m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-            m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(m_Position.x, m_Position.y, 0.0f));
         }
     }
 

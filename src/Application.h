@@ -109,6 +109,14 @@ public:
             glClearColor(color.x, color.y, color.z, color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+//            glClearDepth(1.0f);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_ALWAYS);
+            glCheckError();
+
             Camera.updateCamera();
 
             updateCallback();
