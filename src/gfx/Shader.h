@@ -10,7 +10,9 @@
 
 class Shader : public Component {
 public:
-    Shader() = default;
+    Shader() {
+        componentType = SHADER;
+    }
 
     Shader(const Shader &other) {
         this->m_FragmentShader = other.m_FragmentShader;
@@ -22,13 +24,14 @@ public:
     }
 
     Shader(const std::string &vertSrc, const std::string &fragSrc) {
+        componentType = SHADER;
         m_VertexSource = vertSrc;
         m_FragmentSource = fragSrc;
         createShader(vertSrc, fragSrc);
     }
 
     Shader(const char *vertSrc, const char *fragSrc) {
-
+        componentType = SHADER;
     }
 
     void createShader(const std::string &vertSrc, const std::string &fragSrc) {

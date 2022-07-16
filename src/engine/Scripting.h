@@ -6,9 +6,12 @@
 
 class Scripting : public Component {
 public:
-    Scripting() = default;
+    Scripting() {
+        componentType = GAME_SCRIPT;
+    }
 
     explicit Scripting(const std::string &path) {
+        componentType = GAME_SCRIPT;
         m_ScriptPath = path;
         loadScriptFromFile(path);
     }
@@ -20,10 +23,12 @@ public:
 
     static void init() {
         PythonBridge::getInstance();
+        PythonBridge::getInstance().exec();
+        PythonBridge::getInstance().onInit();
     }
 
     static void run() {
-        PythonBridge::getInstance().exec();
+        PythonBridge::getInstance().onUpdate();
     }
 
     void OnComponentWidgetDrawn() override {

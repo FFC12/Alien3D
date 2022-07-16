@@ -19,7 +19,7 @@
 // TODO: Set callback for detecting when window resizes
 class AlienApplication {
 public:
-    explicit AlienApplication(GfxDeviceType deviceType) : m_GfxDeviceType(deviceType) {
+    AlienApplication(GfxDeviceType deviceType) : m_GfxDeviceType(deviceType) {
 #ifdef LIB_GLFW
         glfwInit();
 #endif
@@ -227,7 +227,7 @@ private:
     GfxDeviceType m_GfxDeviceType;
     bool m_ShouldClose = false;
     bool m_MouseMoveable = true;
-    double m_OffsetX, m_OffsetY;
+    double m_OffsetX{}, m_OffsetY{};
     //float m_DeltaTime {0.0f};
 };
 

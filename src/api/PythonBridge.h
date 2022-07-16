@@ -32,8 +32,31 @@ public:
 
     void exec() {
         for (auto &script: m_Scripts) {
-            ALIEN_INFO("Executing " + script.first + ".py");
-            py::exec(script.second);
+            auto pos = script.first.find_last_of('.');
+            auto scriptName = script.first.substr(0, pos);
+            auto modulePath = "res.scripts." + scriptName;
+
+            ALIEN_INFO("Executing script '" + scriptName + "'");
+
+            auto scriptModule = py::module_::import(modulePath.c_str());
+            py::type scriptClass = scriptModule.attr("GameScript");
+
+            //TODO: Memory leak or fine??
+            m_ScriptObjects[script.first] = new py::object(scriptClass());
+        }
+    }
+
+    void onInit() {
+        for (auto &scriptObject: m_ScriptObjects) {
+            auto startMethod = scriptObject.second->attr("start");
+            startMethod();
+        }
+    }
+
+    void onUpdate() {
+        for (auto &scriptObject: m_ScriptObjects) {
+            auto updateMethod = scriptObject.second->attr("update");
+            updateMethod();
         }
     }
 
@@ -49,6 +72,10 @@ private:
 
     // script name - data
     std::unordered_map<std::string, std::string> m_Scripts;
+
+    //script name - python object (class)
+    std::unordered_map<std::string, py::object *> m_ScriptObjects;
+
     py::scoped_interpreter m_Interpreter{};
 };
 

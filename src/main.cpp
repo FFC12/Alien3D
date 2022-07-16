@@ -14,12 +14,12 @@ int main() {
 
     Scripting script;
     auto onInit = [&]() {
-        Scripting::init();
         script.loadScriptFromFile(RESOURCE_PATH("scripts/script.py"));
-        Scripting::run();
+        Scripting::init();
     };
 
     auto onUpdate = [&]() {
+        Scripting::run();
     };
 
     application.start(onInit, onUpdate, [&]() {}, false);

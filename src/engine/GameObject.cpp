@@ -55,9 +55,46 @@ void GameObject::initGameObject() {
 
     m_Model->initTextures(m_Shader.getProgram());
     glCheckError();
+}
 
-//    m_Components["shader"] = std::shared_ptr<Shader>(&m_Shader);
-//    m_Components["texture"] = std::shared_ptr<Texture>(&m_Texture);
+void GameObject::attachComponent(const std::string &type) {
+    auto checkComponent = [&](const std::string &name) -> bool {
+        if (this->m_Components.count(name) > 0) {
+            ALIEN_ERROR("This component has already added to GameObject!");
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    if (!this->m_IsSprite)
+        abort();
+
+    if (type == "sprite_animation") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new SpriteAnimation(*dynamic_cast<Sprite *>(this));
+        }
+    } else if (type == "physics_body") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new PhysicsBody(*dynamic_cast<Sprite *>(this), BodyType::Static);
+        }
+    } else if (type == "transform") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new Transform();
+        }
+    } else if (type == "texture") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new Texture();
+        }
+    } else if (type == "shader") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new Shader();
+        }
+    } else if (type == "game_script") {
+        if (checkComponent(type)) {
+            this->m_Components[type] = new Scripting();
+        }
+    }
 }
 
 void GameObject::drawCall() {
@@ -184,7 +221,6 @@ void GameObject::GameobjectWidget() {
             auto gameObject = GameobjectList.find(nodeClicked);
 
             auto name = gameObject->second->m_Name;
-//            static char name[32] = "Label1";
             if (ImGui::BeginPopupContextItem()) {
                 if (ImGui::Button("Duplicate")) {
 
@@ -210,7 +246,6 @@ void GameObject::GameobjectWidget() {
             }
 
             gameObject->second->components();
-//            GameobjectList[nodeClicked]->m_Transformation->transformWidget();
 
             if (gameObject->second->m_IsSprite) {
 
@@ -235,10 +270,7 @@ void GameObject::GameobjectWidget() {
 
                 if (ImGui::Button("Done")) {
                     ALIEN_INFO("Done: " + RESOURCE_PATH(path));
-                    auto script = new Scripting(RESOURCE_PATH(path));
-                    auto pos = path.find_last_of('.');
-                    auto compName = path.substr(0, pos);
-                    gameObject->second->attachComponent(script, compName);
+                    gameObject->second->attachComponent("script");
                     attachScript = false;
                     std::memset(&buffer[0], 0, sizeof(buffer));
                 }

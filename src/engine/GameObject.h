@@ -48,11 +48,11 @@ public:
 
     GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
-//    ~GameObject() {
-//        for (auto &i: m_Components) {
-//            delete i.second;
-//        }
-//    }
+    ~GameObject() {
+        for (auto &i: m_Components) {
+            delete i.second;
+        }
+    }
 
     // Careful! shared_ptr does not use as what it is *ref-counting*, instead function just gets the raw pointer
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
@@ -63,6 +63,8 @@ public:
             this->m_Components[name] = component.get();
         }
     }
+
+    void attachComponent(const std::string &type);
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
     void attachComponent(T *component, const std::string &name) {

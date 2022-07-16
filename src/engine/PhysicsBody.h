@@ -27,6 +27,7 @@ public:
     PhysicsBody(Sprite &sprite, const BodyType &bodyType,
                 const PhysicalMaterial &physicalMaterial = {0.1f, 1.0f})
             : m_BodyType(bodyType) {
+        this->componentType = PHYSICS_BODY;
 
         auto transform = sprite.getComponent<Transform>("transform");
         transform->registerCallback([&](const Vector3 &p, const Vector3 &r, const Vector3 &s) {
@@ -139,7 +140,8 @@ public:
 
 private:
     void transformEventHandler(const Vector3 &p, const Vector3 &r, const Vector3 &s) {
-        m_Body->SetTransform(b2Vec2(p.x, p.y), r.z * (float) (M_PI / 180));
+//        if(!WorldSimulation::getInstance().m_World->IsLocked())
+            m_Body->SetTransform(b2Vec2(p.x, p.y), r.z * (float) (M_PI / 180));
     }
 
     void physics2DWidget() {

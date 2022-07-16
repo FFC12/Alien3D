@@ -32,15 +32,9 @@ class Texture : public Component {
     friend class SpriteBatcher;
 
 public:
-    Texture() = default;
-
-    explicit Texture(const std::string &imagePath,
-                     TextureWrappingMode wrappingModeS = TextureWrappingMode::REPEAT,
-                     TextureWrappingMode wrappingModeT = TextureWrappingMode::REPEAT,
-                     TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
-                     TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR) {
-        generateTexture(imagePath.c_str(), wrappingModeS, wrappingModeT, filteringModeMin, filteringModeMag);
-    };
+    Texture() {
+        componentType = TEXTURE;
+    }
 
     Texture(const std::string &imagePath,
             Gfx_u32 shaderProgram,
@@ -49,17 +43,12 @@ public:
             TextureWrappingMode wrappingModeT = TextureWrappingMode::REPEAT,
             TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
             TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR) {
+        componentType = TEXTURE;
         generateTexture(imagePath.c_str(), shaderProgram, texName.c_str(), wrappingModeS, wrappingModeT,
                         filteringModeMin, filteringModeMag);
     };
 
     ~Texture();
-
-    void generateTexture(const char *path,
-                         TextureWrappingMode wrappingModeS = TextureWrappingMode::REPEAT,
-                         TextureWrappingMode wrappingModeT = TextureWrappingMode::REPEAT,
-                         TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
-                         TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR);
 
     void generateTexture(const char *path,
                          Gfx_u32 shaderProgram,

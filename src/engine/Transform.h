@@ -16,12 +16,12 @@ class Transform : public Component {
 
 public:
     Transform() : m_Position(0.0f), m_Rotation(0.0f), m_Scale(1.0f) {
-//        COMPONENT_WIDGET_REGISTRY("transform", Transform::transformWidget);
+        componentType = TRANSFORM;
     }
 
     Transform(const Vector3 &position, const Vector3 &rotation, const Vector3 &scale)
             : m_Position(position), m_Rotation(rotation), m_Scale(scale) {
-//        COMPONENT_WIDGET_REGISTRY("transform", Transform::transformWidget);
+        componentType = TRANSFORM;
     }
 
     ~Transform() {
@@ -76,8 +76,8 @@ public:
         return {x, y, lastPoint.x};
     }
 
-    void registerCallback(std::function<void(const Vector3&,const Vector3&, const Vector3&)> callback) {
-       m_RegisteredCallbacks.push_back(callback);
+    void registerCallback(std::function<void(const Vector3 &, const Vector3 &, const Vector3 &)> callback) {
+        m_RegisteredCallbacks.push_back(callback);
     }
 
     void setPosition(const Vector3 &position) {
@@ -138,11 +138,12 @@ private:
             f32 rot[3] = {m_Rotation.x, m_Rotation.y, m_Rotation.z};
             f32 sca[3] = {m_Scale.x, m_Scale.y, m_Scale.z};
 
+            bool pX, pY, pZ, rZ;
             if (ImGui::TreeNode("Position")) {
 
-                ImGui::DragFloat("X", &pos[0], 0.005f);
-                ImGui::DragFloat("Y", &pos[1], 0.005f);
-                ImGui::DragFloat("Z", &pos[2], 0.005f);
+                pX = ImGui::DragFloat("X", &pos[0], 0.005f);
+                pY = ImGui::DragFloat("Y", &pos[1], 0.005f);
+                pZ = ImGui::DragFloat("Z", &pos[2], 0.005f);
 
                 m_Position.x = pos[0];
                 m_Position.y = pos[1];
@@ -155,7 +156,7 @@ private:
             if (ImGui::TreeNode("Rotation")) {
                 ImGui::DragFloat("X", &rot[0], 0.5f);
                 ImGui::DragFloat("Y", &rot[1], 0.5f);
-                ImGui::DragFloat("Z", &rot[2], 0.5f);
+                rZ = ImGui::DragFloat("Z", &rot[2], 0.5f);
 
                 m_Rotation.x = rot[0];
                 m_Rotation.y = rot[1];
@@ -177,10 +178,13 @@ private:
                 ImGui::TreePop();
             }
             ImGui::TreePop();
-        }
 
-        for (const auto& callback: m_RegisteredCallbacks) {
-            callback(m_Position, m_Rotation, m_Scale);
+
+            if (pX || pY || pZ || rZ) {
+                for (const auto &callback: m_RegisteredCallbacks) {
+                    callback(m_Position, m_Rotation, m_Scale);
+                }
+            }
         }
 
         ImGui::Separator();
