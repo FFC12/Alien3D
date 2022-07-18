@@ -19,7 +19,7 @@ public:
     explicit SpriteAnimation(Sprite &sprite, u32 x = 32, u32 y = 32) : m_X(x), m_Y(y), m_Sprite(sprite) {
         m_AnimID = ID++;
 
-        auto image = Texture::TextureDataCache[m_Sprite.m_ImagePath];
+        auto image = Texture::TextureDataCache[sprite.m_Texture->m_ImagePath];
         auto imageSize = image->getImageSize();
 
         m_W = imageSize.first;
@@ -27,6 +27,45 @@ public:
 
         m_CountX = m_W / m_X;
         m_CountY = m_H / m_Y;
+    }
+
+    SpriteAnimation(const SpriteAnimation &o) : m_Sprite(o.m_Sprite) {
+        m_AnimID = ID++;
+
+        m_CountX = o.m_W / o.m_X;
+        m_CountY = o.m_H / o.m_Y;
+    }
+
+    void setWidth(u32 w) {
+        m_W = w;
+    }
+
+    u32 getWidth() {
+        return m_W;
+    }
+
+    void setHeight(u32 h) {
+        m_H = h;
+    }
+
+    u32 getHeight() {
+        return m_H;
+    }
+
+    void setFrameX(f32 x) {
+        m_X = x;
+    }
+
+    f32 getFrameX() {
+        return m_X;
+    }
+
+    void setFrameY(f32 y) {
+        m_Y = y;
+    }
+
+    f32 getFrameY() {
+        return m_Y;
     }
 
     void setPlaybackSpeed(f32 x) {
@@ -43,7 +82,6 @@ public:
     }
 
 private:
-
     void animate() {
         if (m_Play) {
             Time diff = Clock::now() - m_Start;
@@ -62,8 +100,8 @@ private:
                     m_FrameX += 1;
                 }
 
-                m_Sprite.m_Shader.setFloat("_Height", (float) m_H);
-                m_Sprite.m_Shader.setFloat("_Width", (float) m_W);
+                m_Sprite.m_Shader.setFloat("_AnimHeight", (float) m_H);
+                m_Sprite.m_Shader.setFloat("_AnimWidth", (float) m_W);
                 m_Sprite.m_Shader.setBool("_Animation", true);
                 m_Sprite.m_Shader.setFloat("_FrameSizeX", m_X);
                 m_Sprite.m_Shader.setFloat("_FrameSizeY", m_Y);
@@ -78,6 +116,9 @@ private:
             ImGui::Checkbox("Play", &m_Play);
 //            ImGui::PushID(m_AnimID);
             ImGui::DragFloat("Playback Speed: ", &m_PlaybackSpeed, 0.005f, 0.0f, 10.0f);
+
+            m_CountX = m_W / m_X;
+            m_CountY = m_H / m_Y;
             ImGui::BulletText("Total Frame: %d", m_CountX * m_CountY);
             ImGui::DragFloat("Frame Width:", &m_X, 0.01);
             ImGui::DragFloat("Frame Height:", &m_Y, 0.01);

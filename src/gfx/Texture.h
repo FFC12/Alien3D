@@ -9,6 +9,8 @@
 #include <memory>
 #include "Image.h"
 #include "imgui.h"
+#include <utils/FileDialogs.h>
+#include <filesystem>
 
 // Add other options as well.
 enum TextureFilteringMode {
@@ -58,86 +60,83 @@ public:
                          TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
                          TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR);
 
-    Gfx_u32 generateTexture(const char *path,
-                            const char *texName,
-                            Gfx_u32 shaderProgram,
-                            bool isAlphaTransparent = true,
-                            TextureWrappingMode wrappingModeS = TextureWrappingMode::REPEAT,
-                            TextureWrappingMode wrappingModeT = TextureWrappingMode::REPEAT,
-                            TextureFilteringMode filteringModeMin = TextureFilteringMode::LINEAR,
-                            TextureFilteringMode filteringModeMag = TextureFilteringMode::LINEAR);
-
-    Gfx_u32 enableTexture() {
-        for (auto texture: m_TextureIDs) {
-            if (texture.second.has_value()) {
-//                glBindTextureUnit(texture.second.value(), texture.first);
-                glActiveTexture(GL_TEXTURE0 + texture.second.value());
-                glCheckError();
-                glBindTexture(GL_TEXTURE_2D, texture.first);
-                glCheckError();
-            }
-        }
+    void enableTexture() {
+        glActiveTexture(GL_TEXTURE0 + m_UnitID);
+        glCheckError();
+        glBindTexture(GL_TEXTURE_2D, m_TextureID);
+        glCheckError();
     }
 
     void enableTextureUnit() {
-        for (auto texture: m_TextureIDs) {
-            if (texture.second.has_value()) {
-                glBindTextureUnit(texture.second.value(), texture.first);
-                glCheckError();
-//                glActiveTexture(GL_TEXTURE0 + texture.second.value());
-//                glBindTexture(GL_TEXTURE_2D, texture.first);
-            }
-        }
+        glBindTextureUnit(m_UnitID, m_TextureID);
+        glCheckError();
+
     }
 
-    void OnComponentWidgetDrawn() override {
+    void OnComponentWidgetDrawn()
+
+    override {
         textureWidget();
+
+    }
+
+    std::string getImagePath() {
+        return m_ImagePath;
     }
 
 private:
+
     void textureWidget() {
         if (ImGui::TreeNode("Texture")) {
-            if (m_ImagePath.empty()) {
-                for (const auto &imagePath: m_BatchImagePaths) {
-                    auto image = TextureDataCache[imagePath];
-                    auto unit = TextureCaches[imagePath];
-                    auto size = image->getImageSize();
-                    auto w = size.first;
-                    auto h = size.second;
-                    ImGui::BulletText("Path: %s", imagePath.c_str());
-//                ImGui::BulletText("Unit ID: %d", unit.second);
-                    ImGui::BulletText("Image Width: %d", w);
-                    ImGui::BulletText("Image Height: %d", h);
-                    ImGui::Separator();
+            auto image = TextureDataCache[m_ImagePath];
+            auto size = image->getImageSize();
+            auto w = size.first;
+            auto h = size.second;
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.2f, 0.6f, 0.2f, 1.0f});
+            if (ImGui::ImageButton((void *) ((intptr_t) m_TextureID), ImVec2(w, h))) {
+//                    ImGui::OpenPopup("Create GameObject");
+                pfd::open_file file("Select Image", "", {"All Files", "*"});
+                auto selected = file.result();
+                if (!selected.empty()) {
+                    auto filePath = selected[0];
+                    if (std::filesystem::exists(filePath)) {
+                        if (m_Initialized) {
+                            m_ImagePath = filePath;
+                            glDeleteTextures(1, &m_TextureID);
+                            m_CurrUnitID = 0;
+                            generateTexture(filePath.c_str(), m_AssocProgram, "_Diffuse");
+                        }
+                    }
                 }
-            } else {
-                auto image = TextureDataCache[m_ImagePath];
-                auto unit = TextureCaches[m_ImagePath];
-                auto size = image->getImageSize();
-                auto w = size.first;
-                auto h = size.second;
-                ImGui::BulletText("Path: %s", m_ImagePath.c_str());
-//                ImGui::BulletText("Unit ID: %d", unit.second);
-                ImGui::BulletText("Image Width: %d", w);
-                ImGui::BulletText("Image Height: %d", h);
-                ImGui::Separator();
             }
+            ImGui::PopStyleColor();
+
+            ImGui::BulletText("Path: %s", m_ImagePath.c_str());
+//                ImGui::BulletText("Unit ID: %d", unit.second);
+            ImGui::BulletText("Image Width: %d", w);
+            ImGui::BulletText("Image Height: %d", h);
+
             ImGui::TreePop();
         }
         ImGui::Separator();
     }
 
+    bool m_Initialized{false};
+
+    Gfx_u32 m_AssocProgram;
+
     Gfx_u32 m_CurrUnitID{0};
 
     std::string m_ImagePath;
 
-    std::vector<std::string> m_BatchImagePaths;
+    Gfx_u32 m_TextureID;
+    Gfx_u32 m_UnitID;
+// Texture ID - Unit ID
+//    std::map<Gfx_u32, std::optional<Gfx_u32>> m_TextureIDs{};
 
-    // Texture ID - Unit ID
-    std::map<Gfx_u32, std::optional<Gfx_u32>> m_TextureIDs{};
-
-    // <path, pair < TexID, UnitID > >
-    static inline std::unordered_map<std::string, std::pair<Gfx_u32, Gfx_u32>> TextureCaches{};
+// <path, pair < TexID, UnitID > >
+//    static inline std::unordered_map<std::string, std::pair<Gfx_u32, Gfx_u32>> TextureCaches{};
 
     static inline std::unordered_map<std::string, std::shared_ptr<Image>> TextureDataCache{};
 };

@@ -1,5 +1,7 @@
 #ifndef BASE_HPP
 #define BASE_HPP
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cassert>
 #include <string>
 #include <iostream>

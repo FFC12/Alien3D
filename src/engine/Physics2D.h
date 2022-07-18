@@ -30,7 +30,7 @@ public:
         return ins;
     }
 
-    void step();
+    void step(bool);
 
     void debugDrawRender() {
         //GL

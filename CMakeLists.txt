@@ -118,7 +118,7 @@ file(GLOB_RECURSE SRC_FILES "./src/*.h" "./src/*.cpp")
 #b2draw
 #include_directories(src/b2draw/include)
 
-add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/engine/DebugDraw.cpp src/engine/algorithm.h src/engine/DebugDraw.h src/engine/PrimitiveRenderer.cpp src/engine/PrimitiveRenderer.h src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h src/api/PythonBridge.cpp src/api/PythonBridge.h)
+add_executable(Alien3d ${SRC_FILES} ${IMGUI_FILES} src/engine/DebugDraw.cpp src/engine/algorithm.h src/engine/DebugDraw.h src/engine/PrimitiveRenderer.cpp src/engine/PrimitiveRenderer.h src/gfx/GfxBase.cpp src/gfx/GfxBase.h src/adapter/GLFWImguiAdapter.h src/gfx/Buffer.h src/gfx/Shader.cpp src/gfx/Shader.h src/gfx/Texture.cpp src/gfx/Texture.h src/engine/Component.cpp src/engine/Component.h src/engine/GameObject.cpp src/engine/GameObject.h src/gfx/WorldCamera.h src/engine/Transform.h src/engine/RenderQueue.h src/engine/AssetImporter.h src/engine/Model.h src/engine/Mesh.h src/engine/Sprite.cpp src/engine/Sprite.h src/gfx/Image.cpp src/gfx/Image.h src/engine/Physics2D.cpp src/engine/Physics2D.h src/engine/PhysicsBody.h src/engine/SpriteAnimation.h src/api/PythonBridge.cpp src/api/PythonBridge.h src/editor/EditorWindow.cpp)
 
 if (LIB_GLAD AND UNIX)
     set(CMAKE_CXX_FLAGS -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
@@ -157,13 +157,14 @@ include_directories(src)
 # assimp
 add_subdirectory(lib/assimp)
 set(ZLIB_LIBRARIES zlibstatic)
-set(ENABLE_BOOST_WORKAROUND ON)
+set(ENABLE_BOOST_WORKAROUND OFF)
 set(BUILD_STATIC_LIB ON)
-set(BUILD_ASSIMP_TOOLS ON)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_STATIC_LIB ON)
 set(ASSIMP_BUILD_NO_SMD_IMPORTER ON)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
+set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 include_directories(${CMAKE_BINARY_DIR}/lib/assimp/include)
 target_link_libraries(Alien3d assimp)
@@ -176,9 +177,9 @@ include_directories(${CMAKE_BINARY_DIR}}/lib/box2d/include)
 target_link_libraries(Alien3d box2d)
 
 # python
-find_package(Python REQUIRED COMPONENTS Interpreter Development)
-include_directories(Alien3d ${Python_INCLUDE_DIRS})
-target_link_libraries(Alien3d ${Python_LIBRARIES})
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+include_directories(Alien3d ${Python3_INCLUDE_DIRS})
+target_link_libraries(Alien3d ${Python3_LIBRARIES})
 
 #pybind
 find_package(pybind11 CONFIG)

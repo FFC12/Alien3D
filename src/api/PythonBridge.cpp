@@ -13,7 +13,8 @@ PYBIND11_EMBEDDED_MODULE(alien3d, m) {
             .def("attachComponent", &Sprite::attachComponent<SpriteAnimation>)
 //            .def("getComponent", &Sprite::getComponent<PhysicsBody>)
             .def("getComponent", &Sprite::getComponent<Transform>, py::return_value_policy::reference)
-            .def("getComponent", &Sprite::getComponent<SpriteAnimation>, py::return_value_policy::reference);
+            .def("getComponent", &Sprite::getComponent<SpriteAnimation>, py::return_value_policy::reference)
+            .def_static("Create", &Sprite::Create);
 
     py::enum_<BodyType>(m, "BodyType")
             .value("STATIC", BodyType::Static)

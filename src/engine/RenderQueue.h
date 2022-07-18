@@ -29,8 +29,10 @@ public:
     }
 
     void deleteQueue(const GameObject &gameObject) {
-        auto pos = m_RenderQueue.find(gameObject.m_ObjectUUID);
-        m_RenderQueue.erase(pos);
+        if (m_RenderQueue.count(gameObject.m_ObjectUUID) > 0) {
+            auto pos = m_RenderQueue.find(gameObject.m_ObjectUUID);
+            m_RenderQueue.erase(gameObject.m_ObjectUUID);
+        }
     }
 
     void render() {

@@ -1,7 +1,7 @@
 #include "Physics2D.h"
 #include <Application.h>
 
-void WorldSimulation::step() {
+void WorldSimulation::step(bool simulate = false) {
     if (m_World != nullptr) {
 
         // make this more efficient since it's keep copying b2vec2
@@ -12,26 +12,27 @@ void WorldSimulation::step() {
                 this->m_BodyCount = m_World->GetBodyCount();
 
             for (i32 i = 0; i < 30; i++) {
-                auto bodies = m_World->GetBodyList();
+                if (simulate) {
+                    auto bodies = m_World->GetBodyList();
 
 //                m_World->m_DebugDraw();
-                auto body = bodies;
-                while (body != nullptr) {
-                    auto pos = body->GetPosition();
-                    auto angle = body->GetAngle();
+                    auto body = bodies;
+                    while (body != nullptr) {
+                        auto pos = body->GetPosition();
+                        auto angle = body->GetAngle();
 
-                    auto *sprite = reinterpret_cast<Sprite *>(body->GetUserData().pointer);
-                    auto transform = sprite->getComponent<Transform>("transform");
-                    if (body->GetType() != b2_staticBody) {
-                        transform->setPosition(Vector3(pos.x, pos.y, 0.0f));
-                        transform->setRotation(angle);
+                        auto *sprite = reinterpret_cast<Sprite *>(body->GetUserData().pointer);
+                        auto transform = sprite->getComponent<Transform>("transform");
+                        if (body->GetType() != b2_staticBody) {
+                            transform->setPosition(Vector3(pos.x, pos.y, 0.0f));
+                            transform->setRotation(angle);
+                        }
+
+                        body = body->GetNext();
                     }
-
-                    body = body->GetNext();
+                    m_World->Step(1.0f / m_StepCount, m_VelocityIter, m_PositionIter);
+                    m_World->ClearForces();
                 }
-
-                m_World->Step(1.0f / m_StepCount, m_VelocityIter, m_PositionIter);
-                m_World->ClearForces();
 
                 if (this->m_DebugPhysics) {
                     m_DebugDraw->Clear();

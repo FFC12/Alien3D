@@ -90,6 +90,8 @@ static Gfx_enum glCheckError_(const char *file, int line) {
 
         ALIEN_ERROR(error + "|" + std::string(file) + "(" + std::to_string(line) + ")");
     }
+
+    return errCode;
 }
 
 #define _GL_CHECK

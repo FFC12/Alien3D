@@ -5,7 +5,9 @@ class GameScript:
         pass
 
     def start(self):
+        print("Hello world")
         pass
 
     def update(self):
+        print("Update called")
         pass

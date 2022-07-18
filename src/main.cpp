@@ -12,14 +12,10 @@ int main() {
         ALIEN_ASSERT2("FAILED");
     }
 
-    Scripting script;
     auto onInit = [&]() {
-        script.loadScriptFromFile(RESOURCE_PATH("scripts/script.py"));
-        Scripting::init();
     };
 
     auto onUpdate = [&]() {
-        Scripting::run();
     };
 
     application.start(onInit, onUpdate, [&]() {}, false);

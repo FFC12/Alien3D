@@ -24,7 +24,7 @@ class RenderQueue;
 
 class Light;
 
-class SpriteBatcher;
+class EditorWindow;
 
 class WorldSimulation;
 
@@ -39,39 +39,40 @@ class GameObject {
 
     friend class WorldSimulation;
 
-    friend class SpriteBatcher;
+    friend class EditorWindow;
 
 public:
     explicit GameObject(const std::string &name);
+
+//    GameObject(const GameObject& other);
 
     GameObject(const std::string &name, Primitive primitiveType);
 
     GameObject(const std::string &name, std::shared_ptr<Model> &model);
 
-    ~GameObject() {
-        for (auto &i: m_Components) {
-            delete i.second;
-        }
-    }
+    // GFX deallocations might be performed as well. (Delete all the Texture, Shader and etc.)
+    ~GameObject();
 
     // Careful! shared_ptr does not use as what it is *ref-counting*, instead function just gets the raw pointer
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void attachComponentRC(std::shared_ptr<T> &component, const std::string &name) {
+    void attachComponentRC(std::shared_ptr<T> &component, const std::string &name, bool v) {
         if (this->m_Components.count(name) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
-            this->m_Components[name] = component.get();
+            this->m_Components[name] = {component.get(), v};
         }
     }
 
     void attachComponent(const std::string &type);
 
+    void attachComponent(const ComponentType &type);
+
     template<typename T, typename = typename std::enable_if<std::is_base_of<Component, T>::value>::type>
-    void attachComponent(T *component, const std::string &name) {
+    void attachComponent(T *component, const std::string &name, bool v) {
         if (this->m_Components.count(name) > 0) {
             ALIEN_ERROR("This component has already added to GameObject!");
         } else {
-            this->m_Components[name] = component;
+            this->m_Components[name] = {component, v};
         }
     }
 
@@ -85,7 +86,7 @@ public:
     T *getComponent(const std::string &name) {
         if (this->m_Components.count(name) > 0) {
             auto pos = this->m_Components.find(name);
-            return ((T *) pos->second);
+            return ((T *) pos->second.first);
         } else {
             return nullptr;
         }
@@ -94,6 +95,11 @@ public:
     std::string getObjectUUID() {
         return this->m_ObjectUUID;
     }
+
+    void duplicate(const std::string &n, GameObject &o);
+
+    static std::unique_ptr<GameObject> Create(const std::string &name);
+
 
     // TODO: add getComponent function..
 protected:
@@ -107,18 +113,22 @@ protected:
 
     static void GameobjectWidget();
 
+    static void QuickCreate(const std::string &name);
+
     std::string m_ObjectUUID;
     std::string m_Name;
 
     Shader m_Shader;
-    Texture m_Texture;
+    Texture *m_Texture;
 
 //    Transform m_Transformation;
     std::shared_ptr<Model> m_Model;
 
     bool m_Renderable{false};
     bool m_IsSprite{false};
-    std::map<std::string, Component *> m_Components;
+    Sprite *m_Sprite;
+    std::map<std::string, std::pair<Component *, bool>> m_Components;
+    std::map<std::string, std::pair<Component *, bool>> m_GameScripts;
 
     static inline bool WidgetInitialized{false};
     static inline bool WireframeMode{false};

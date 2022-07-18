@@ -134,6 +134,66 @@ public:
         }
     }
 
+    Vector3 getBoundsCenter() {
+        return m_BoundsCenter;
+    }
+
+    void setBoundsCenter(Vector3 c) {
+        m_BoundsCenter = c;
+    }
+
+    Vector3 getBounds(){
+        return m_Bounds;
+    }
+
+    void setBounds(Vector3 b) {
+        m_Bounds = b;
+    }
+
+    Vector3 getSimulationPosition() {
+        return m_Position;
+    }
+
+    void setSimulationPosition(Vector3 p) {
+        m_Position = p;
+    }
+
+    BodyType getBodyType() {
+        return m_BodyType;
+    }
+
+    void setBodyType(BodyType b) {
+        m_BodyType = b;
+    }
+
+    bool getIsAllowSleep() const {
+        return m_AllowSleep;
+    }
+
+    void setIsAllowSleep(bool s) {
+        m_AllowSleep = s;
+    }
+
+    f32 getAngle() const {
+        return m_Angle;
+    }
+
+    void setAngle(f32 a) {
+        m_Angle = a;
+    }
+
+    b2BodyDef getBodyDef() {
+        return m_BodyDef;
+    }
+
+    b2FixtureDef getBodyFixtureDef() {
+        return m_Fixture;
+    }
+
+    b2PolygonShape getShape() {
+        return m_Shape;
+    }
+
     void OnComponentWidgetDrawn() override {
         physics2DWidget();
     }
@@ -141,7 +201,7 @@ public:
 private:
     void transformEventHandler(const Vector3 &p, const Vector3 &r, const Vector3 &s) {
 //        if(!WorldSimulation::getInstance().m_World->IsLocked())
-            m_Body->SetTransform(b2Vec2(p.x, p.y), r.z * (float) (M_PI / 180));
+        m_Body->SetTransform(b2Vec2(p.x, p.y), r.z * (float) (M_PI / 180));
     }
 
     void physics2DWidget() {
@@ -214,6 +274,10 @@ private:
 
             if (bx || by || cx || cy) {
                 static b2Vec2 vertices[4];
+
+                // Preventing assertion of the Box2D
+                if (m_Bounds.x <= 0.05f) m_Bounds.x = 0.05f;
+                if (m_Bounds.y <= 0.05f) m_Bounds.y = 0.05f;
 
                 vertices[0] = b2Vec2(-m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);
                 vertices[1] = b2Vec2(m_Bounds.x + m_BoundsCenter.x, -m_Bounds.y + m_BoundsCenter.y);

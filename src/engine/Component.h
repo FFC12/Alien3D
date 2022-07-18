@@ -4,13 +4,13 @@
 #include <utils/Uuid.h>
 
 enum ComponentType {
-    SPRITE_ANIM,
-    PHYSICS_BODY,
-    TRANSFORM,
-    GAME_SCRIPT,
-    SHADER,
-    TEXTURE,
-    NO_COMP
+    SPRITE_ANIM = 0,
+    PHYSICS_BODY = 1,
+    TRANSFORM = 2,
+    GAME_SCRIPT = 3,
+    SHADER = 4,
+    TEXTURE = 5,
+    NO_COMP = 20
 };
 
 class Component {

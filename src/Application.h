@@ -12,6 +12,8 @@
 #include <GLFW/glfw3.h>
 #include <adapter/GLFWImguiAdapter.h>
 #include <editor/EditorWindow.h>
+#include "api/PythonBridge.h"
+#include "engine/Scripting.h"
 
 #endif
 
@@ -75,11 +77,13 @@ public:
                const std::function<void()> &keyboardCallback, bool overrideKeyword = false) {
 #ifdef LIB_GLFW
         Camera.setWindowSize(WIDTH, HEIGHT);
-        initCallback();
         WorldSimulation simulation = WorldSimulation::getInstance();
+        PythonBridge::getInstance();
+        initCallback();
 
         static float lastFrame = 0.0f;
         bool mouseFlag = false, keyboardFlag = false;
+        bool initFunctions = false;
         while (!m_ShouldClose && !glfwWindowShouldClose(m_Window)) {
             // TODO: Make changes (TAO etc.)
             // Calculating the deltatime as simple as possible.
@@ -87,6 +91,16 @@ public:
             Time = currentFrame;
             DeltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
+
+            if (GameMode && !initFunctions) {
+                for (auto &func: Scripting::Functions) {
+                    func.second.first();
+                }
+
+                initFunctions = true;
+            }
+
+            if (!GameMode) initFunctions = false;
 
             // World camera input handling..
             whenMouseOverImguiWindows(keyboardFlag, mouseFlag);
@@ -121,8 +135,16 @@ public:
 
             updateCallback();
 
+            if (GameMode) {
+                for (auto &func: Scripting::Functions) {
+
+                    func.second.second();
+                }
+            }
+
             WorldSimulation::getInstance().debugDrawRender();
-            WorldSimulation::getInstance().step();
+
+            WorldSimulation::getInstance().step(GameMode);
 
             // draw calls
             RenderQueue::getInstance().render();
@@ -132,7 +154,7 @@ public:
 
             //imgui draw calls
             GLFWImguiAdapter::ImGuiUpdate([]() {
-                EditorWindow::DrawEditorWindow(DeltaTime, Camera.isOrtho());
+                EditorWindow::DrawEditorWindow(DeltaTime, Camera.isOrtho(), GameMode);
             });
 
             glfwGetFramebufferSize(m_Window, &WIDTH, &HEIGHT);
@@ -171,6 +193,7 @@ public:
 
     static inline i32 WIDTH{}, HEIGHT{};
     static inline float DeltaTime{}, Time{};
+    static inline bool GameMode{false};
     static inline WorldCamera Camera{true};
 private:
     void keyboardInputHandling() {

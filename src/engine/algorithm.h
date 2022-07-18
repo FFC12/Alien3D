@@ -1,12 +1,14 @@
 #ifndef HEADER_INCLUDE__RECURSION__ALGORITHM__CHEBYSHEV_SEGMENTS__H
 #define HEADER_INCLUDE__RECURSION__ALGORITHM__CHEBYSHEV_SEGMENTS__H
+#define _USE_MATH_DEFINES
 #include <cmath>
+#include <math.h>
 
 
 namespace b2draw {
 namespace algorithm {
 
-
+	
 constexpr float HALF_PI = M_PI / 2;
 constexpr float TWO_PI = 2 * M_PI;
 
@@ -18,7 +20,7 @@ constexpr float TWO_PI = 2 * M_PI;
  * @param cosAngle - the cosine of the angle, `cos(angle)`.
  * @returns the value `sin(angle)`.
  */
-constexpr float
+static float
 cosToSin(float const angle, float const cosAngle)
 {
 	bool const cond = std::remainder(angle, TWO_PI) < 0;
@@ -33,7 +35,7 @@ cosToSin(float const angle, float const cosAngle)
  * @param sinAngle - the sine of the angle, `sin(angle)`.
  * @returns the value `cos(angle)`.
  */
-constexpr float
+static float
 sinToCos(float const angle, float const sinAngle)
 {
 	bool const cond = std::remainder(angle + HALF_PI, TWO_PI) < 0;

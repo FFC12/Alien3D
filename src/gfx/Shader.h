@@ -20,7 +20,8 @@ public:
         this->m_Program = other.m_Program;
         this->m_FragmentSource = other.m_FragmentSource;
         this->m_VertexSource = other.m_VertexSource;
-        this->m_UUID = other.m_UUID;
+        this->m_UUID = Utils::getUUID();
+//        this->m_UUID = other.m_UUID;
     }
 
     Shader(const std::string &vertSrc, const std::string &fragSrc) {
@@ -32,6 +33,17 @@ public:
 
     Shader(const char *vertSrc, const char *fragSrc) {
         componentType = SHADER;
+    }
+
+    Shader operator=(const Shader& other) {
+        this->m_FragmentShader = other.m_FragmentShader;
+        this->m_VertexShader = other.m_VertexShader;
+        this->m_Program = other.m_Program;
+        this->m_FragmentSource = other.m_FragmentSource;
+        this->m_VertexSource = other.m_VertexSource;
+        this->m_UUID = Utils::getUUID();
+//        this->m_UUID = other.m_UUID;
+        return *this;
     }
 
     void createShader(const std::string &vertSrc, const std::string &fragSrc) {

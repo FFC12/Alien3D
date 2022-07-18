@@ -121,6 +121,10 @@ private:
 //            m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 //            m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
             m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+            for (const auto &callback: m_RegisteredCallbacks) {
+                callback(m_Position, m_Rotation, m_Scale);
+            }
         }
     }
 
@@ -138,7 +142,7 @@ private:
             f32 rot[3] = {m_Rotation.x, m_Rotation.y, m_Rotation.z};
             f32 sca[3] = {m_Scale.x, m_Scale.y, m_Scale.z};
 
-            bool pX, pY, pZ, rZ;
+            bool pX {false}, pY {false}, pZ{false}, rZ{false};
             if (ImGui::TreeNode("Position")) {
 
                 pX = ImGui::DragFloat("X", &pos[0], 0.005f);
