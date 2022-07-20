@@ -1,3 +1,4 @@
+#include <list>
 #include "GameObject.h"
 #include <glad/glad.h>
 #include "ShaderManager.h"
@@ -8,7 +9,7 @@
 #include <engine/PhysicsBody.h>
 #include <engine/RenderQueue.h>
 #include <engine/Scripting.h>
-#include <list>
+#include <engine/SceneManager.h>
 
 GameObject::GameObject(const std::string &name) {
     this->m_Name = name;
@@ -159,7 +160,6 @@ void GameObject::attachComponent(const ComponentType &type) {
             break;
     }
 }
-
 
 void GameObject::attachComponent(const std::string &type) {
     auto checkComponent = [&](const std::string &name) -> bool {
@@ -322,57 +322,61 @@ void GameObject::GameobjectWidget() {
             auto firstPart = gameobject.first.substr(0, gameobject.first.find(":"));
             ImGui::TreeNodeEx(firstPart.c_str(), nodeFlags, "%s", firstPart.c_str());
 
+            if (GameobjectList.count(nodeClicked) > 0 && nodeClicked == gameobject.first) {
+              auto gameObject = GameobjectList.find(nodeClicked);
+
+              auto name = gameObject->second->m_Name; 
+              if (ImGui::BeginPopupContextItem(nodeClicked.c_str())) {
+                if (ImGui::Button("Duplicate")) {
+                  if (gameObject->second->m_IsSprite) {
+                    Sprite* sprite = new Sprite(*gameObject->second->m_Sprite);
+                    ImGui::CloseCurrentPopup();  
+                  }
+                }
+
+                if (ImGui::Button("Delete")) {
+                  if (gameObject->second->m_IsSprite) {
+                    auto id = gameObject->second->m_Name + ":" + gameObject->second->m_ObjectUUID;
+
+                    RenderQueue::getInstance().deleteQueue(*gameObject->second);
+
+                    if (Sprite::SpriteList.count(id) > 0) {
+                      auto pos = Sprite::SpriteList.find(id);
+                      delete pos->second;
+                      Sprite::SpriteList.erase(pos);
+                      nodeClicked = "";
+                      ImGui::CloseCurrentPopup(); 
+
+                      ImGui::EndPopup();
+                      break;
+                    }
+                    else {
+                      ALIEN_ERROR("Potential Memory Leak Might Be Happened!");
+                    }
+                  }
+                }
+
+                ImGui::Text("Edit name (not working):");
+                ImGui::InputText("##edit", (char*)name.c_str(), name.size() + 1);
+                if (ImGui::Button("Close")) {
+                  ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+              } 
+            }
+
+
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                nodeClicked = gameobject.first;
-
-            }
-
-            if (dragAndDrop && ImGui::BeginDragDropSource()) {
-                ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
-                ImGui::Text("This is a drag and drop source");
-                ImGui::EndDragDropSource();
-            }
-        }
-
-        ImGui::TreePop();
+                nodeClicked = gameobject.first;  
+                break;
+            }  
+        }  
+        ImGui::TreePop(); 
 
         if (GameobjectList.count(nodeClicked) > 0) {
             auto gameObject = GameobjectList.find(nodeClicked);
 
-            auto name = gameObject->second->m_Name;
-            if (ImGui::BeginPopupContextItem()) {
-                if (ImGui::Button("Duplicate")) {
-                    if (gameObject->second->m_IsSprite) {
-                        Sprite *sprite = new Sprite(*gameObject->second->m_Sprite);
-                    }
-                }
-
-                if (ImGui::Button("Delete")) {
-                    if (gameObject->second->m_IsSprite) {
-                        auto id = gameObject->second->m_Name + ":" + gameObject->second->m_ObjectUUID;
-
-                        RenderQueue::getInstance().deleteQueue(*gameObject->second);
-                        
-                        if (Sprite::SpriteList.count(id) > 0) {
-                            auto pos = Sprite::SpriteList.find(id);
-                            delete pos->second;
-                            Sprite::SpriteList.erase(pos);
-                            nodeClicked = "";
-                            goto delete_op;
-                        } else {
-                            ALIEN_ERROR("Potential Memory Leak Might Be Happened!");
-                        }
-                    }
-                }
-
-                ImGui::Text("Edit name (not working):");
-                ImGui::InputText("##edit", (char *) name.c_str(), name.size() + 1);
-                if (ImGui::Button("Close")) {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-
+            auto name = gameObject->second->m_Name; 
 
             static bool isOpen = true;
             if (!ImGui::Begin("Components", &isOpen, ImGuiWindowFlags_None)) {

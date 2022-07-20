@@ -4,6 +4,7 @@
 #include <engine/Vector.h>
 #include <engine/Component.h>
 #include <editor/EditorWindow.h>
+#include <engine/SceneManager.h>
 
 class GameObject;
 
@@ -103,6 +104,24 @@ public:
 
     void OnComponentWidgetDrawn() override {
         transformWidget();
+    }
+
+    void OnSceneSerialized(Scene& scene) override {
+      scene.writeComponent("transform", {
+        {"positionX", std::to_string(m_Position.x)},
+        {"positionY", std::to_string(m_Position.y)},
+        {"positionZ", std::to_string(m_Position.z)},
+        {"rotationX", std::to_string(m_Rotation.x)},
+        {"rotationY", std::to_string(m_Rotation.y)},
+        {"rotationZ", std::to_string(m_Rotation.z)},
+        {"scaleX", std::to_string(m_Scale.x)},
+        {"scaleY", std::to_string(m_Scale.y)},
+        {"scaleZ", std::to_string(m_Scale.z)}
+      });
+    }
+
+    void OnSceneDeserialized(Scene& scene) override {
+
     }
 
 private:

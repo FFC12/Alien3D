@@ -1,6 +1,7 @@
 #include <editor/EditorWindow.h>
 #include <engine/GameObject.h>
 #include <engine/Sprite.h>
+#include <engine/SceneManager.h>
 
 void EditorWindow::DrawEditorWindow(float deltaTime, bool is2D, bool &gameMode) {
 //        auto fps = 1 / deltaTime;
@@ -12,22 +13,42 @@ void EditorWindow::DrawEditorWindow(float deltaTime, bool is2D, bool &gameMode) 
 
     static bool show = false;
     static bool saveGame = false;
+    static bool loadGame = false;
     static bool buildGame = false;
     static bool settings = false;
 
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("Menu")) {
-            ImGui::MenuItem("Save", NULL, &saveGame);
+            ImGui::MenuItem("Save Scene", NULL, &saveGame);
+            ImGui::MenuItem("Load Scene", NULL, &loadGame);
             ImGui::MenuItem("Build Game", NULL, &buildGame);
             ImGui::MenuItem("Settings", NULL, &settings);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Editor Tools")) {
-            ImGui::MenuItem("GameObject List", NULL, &show);
+            ImGui::MenuItem("Scene Explorer", NULL, &show);
             ImGui::EndMenu();
         }
 
         ImGui::EndMenuBar();
+    }
+
+    if (saveGame) {
+      // a modal for getting the name
+      SceneManager::getInstance().saveScene("default", RESOURCE_PATH("scenes/default.a3d"));
+      saveGame = false;
+    }
+
+    if (loadGame) {
+      pfd::open_file file("Select Scene", "", { "All Files", "*.a3d" });
+      auto selected = file.result();
+      if (!selected.empty()) {
+        auto filePath = selected[0];
+        if (std::filesystem::exists(filePath)) {
+          SceneManager::getInstance().loadScene("default", filePath);
+        }
+      }
+      loadGame = false;
     }
 
     ImGui::Text("FPS: %.2f \n ms: %.3f", 1 / deltaTime, deltaTime);

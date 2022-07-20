@@ -6,6 +6,7 @@
 #include <engine/Sprite.h>
 #include <engine/Component.h>
 #include <chrono>
+#include <engine/SceneManager.h>
 
 class GameObject;
 
@@ -79,6 +80,20 @@ public:
 
     void OnComponentWidgetDrawn() override {
         spriteAnimationWidget();
+    }
+
+    void OnSceneSerialized(Scene& scene) override {
+      scene.writeComponent("sprite_animation", {
+        {"X",std::to_string(m_X)},
+        {"Y",std::to_string(m_Y)},
+        {"W",std::to_string(m_W)},
+        {"H",std::to_string(m_H)},
+        {"playbackSpeed",std::to_string(m_PlaybackSpeed)}
+      });
+    }
+
+    void OnSceneDeserialized(Scene& scene) override {
+
     }
 
 private:

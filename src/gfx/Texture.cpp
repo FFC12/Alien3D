@@ -2,7 +2,9 @@
 
 void Texture::generateTexture(const char *path,
                               Gfx_u32 shaderProgram,
-                              const char *texName, TextureWrappingMode wrappingModeS,
+                              const char *texName,
+                              bool shaderProgramNeeded, 
+                              TextureWrappingMode wrappingModeS,
                               TextureWrappingMode wrappingModeT,
                               TextureFilteringMode filteringModeMin,
                               TextureFilteringMode filteringModeMag) {
@@ -51,8 +53,14 @@ void Texture::generateTexture(const char *path,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filteringModeMin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filteringModeMag);
 
-    auto loc = glGetUniformLocation(shaderProgram, texName);
-    glUniform1i(loc, this->m_CurrUnitID);
+    if (shaderProgramNeeded) { 
+      auto loc = glGetUniformLocation(shaderProgram, texName);
+      glUniform1i(loc, this->m_CurrUnitID);
+    }
+    else {
+      auto loc = glGetUniformLocation(m_AssocProgram, texName);
+      glUniform1i(loc, this->m_CurrUnitID);
+    }
 
     m_TextureID = textureId;
     m_UnitID = m_CurrUnitID;
@@ -68,3 +76,4 @@ void Texture::generateTexture(const char *path,
 Texture::~Texture() {
     glDeleteTextures(1, &m_TextureID);
 }
+ 

@@ -6,6 +6,7 @@
 #include <engine/Component.h>
 #include <string>
 #include "imgui.h"
+#include <engine/SceneManager.h>
 
 
 class Shader : public Component {
@@ -168,6 +169,17 @@ public:
 
     void OnComponentWidgetDrawn() override {
         shaderWidget();
+    }
+
+    void OnSceneSerialized(Scene& scene) override {
+      scene.writeComponent("shader", {
+        {"fragSrc",m_FragmentSource.c_str()},
+        {"vertSrc",m_VertexSource.c_str()}
+      });
+    }
+
+    void OnSceneDeserialized(Scene& scene) override {
+
     }
 
 private:

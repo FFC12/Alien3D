@@ -20,8 +20,6 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 typedef float  f32;
 typedef double f64;
-
-
-#define RESOURCE_PATH(path) std::string("../res/") + std::string(path)
-
+ 
+#define RESOURCE_PATH(path) std::string("res/") + std::string(path) 
 #endif

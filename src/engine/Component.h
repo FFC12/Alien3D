@@ -3,6 +3,8 @@
 
 #include <utils/Uuid.h>
 
+class Scene;
+
 enum ComponentType {
     SPRITE_ANIM = 0,
     PHYSICS_BODY = 1,
@@ -22,6 +24,8 @@ public:
 //    virtual ~Component() = default;
 
     virtual void OnComponentWidgetDrawn() = 0;
+    virtual void OnSceneSerialized(Scene& scene) = 0;
+    virtual void OnSceneDeserialized(Scene& scene) = 0;
 
     ComponentType componentType;
 protected:

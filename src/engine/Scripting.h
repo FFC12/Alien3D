@@ -3,6 +3,7 @@
 
 #include <editor/EditorWindow.h>
 #include <api/PythonBridge.h>
+#include <engine/SceneManager.h>
 
 class Scripting : public Component {
 public:
@@ -60,6 +61,16 @@ public:
 
     void OnComponentWidgetDrawn() override {
         this->scriptingWidget();
+    }
+
+    void OnSceneSerialized(Scene& scene) override {
+      scene.writeComponent("game_script", {
+        {"scriptPath",m_ScriptPath}
+      });
+    }
+
+    void OnSceneDeserialized(Scene& scene) override {
+
     }
 
     static inline std::map<std::string, std::pair<std::function<void()>, std::function<void()>>> Functions{};

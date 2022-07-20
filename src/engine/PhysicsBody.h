@@ -10,6 +10,7 @@
 #include <Application.h>
 #include <utils/Helper.h>
 #include <functional>
+#include <engine/SceneManager.h>
 
 enum BodyType {
     Static = 0,
@@ -196,6 +197,23 @@ public:
 
     void OnComponentWidgetDrawn() override {
         physics2DWidget();
+    }
+
+    void OnSceneSerialized(Scene& scene) override {
+      scene.writeComponent("physics_body", {
+        {"boundsCenterX",std::to_string(m_BoundsCenter.x)},
+        {"boundsCenterY",std::to_string(m_BoundsCenter.y)},
+        {"boundsCenterZ",std::to_string(m_BoundsCenter.z)},
+        {"boundsX",std::to_string(m_Bounds.x)},
+        {"boundsY",std::to_string(m_Bounds.y)},
+        {"boundsZ",std::to_string(m_Bounds.z)},
+        {"bodyType",std::to_string((int)m_BodyType)},
+        {"angle", std::to_string(m_Angle)}
+      });
+    }
+
+    void OnSceneDeserialized(Scene& scene) override {
+
     }
 
 private:

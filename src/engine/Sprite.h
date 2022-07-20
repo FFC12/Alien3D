@@ -32,7 +32,7 @@ public:
         return std::move(std::make_unique<Sprite>(name, path, alpha));
     }
 
-    void duplicate(const std::string &n, Sprite &o);
+    void duplicate(const std::string &n, Sprite &o); 
 
     static inline std::unordered_map<std::string, Sprite *> SpriteList;
 private:
@@ -41,7 +41,6 @@ private:
     static void QuickCreate(const std::string &name) {
         auto sprite = new Sprite(name);
         sprite->initSprite(name, RESOURCE_PATH("default.jpg"));
-
     }
 
     std::string m_ImagePath;

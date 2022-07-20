@@ -14,6 +14,7 @@
 #include <editor/EditorWindow.h>
 #include "api/PythonBridge.h"
 #include "engine/Scripting.h"
+#include <engine/SceneManager.h>
 
 #endif
 
@@ -76,6 +77,8 @@ public:
     void start(const std::function<void()> &initCallback, const std::function<void()> &updateCallback,
                const std::function<void()> &keyboardCallback, bool overrideKeyword = false) {
 #ifdef LIB_GLFW
+        
+        ActiveScene = SceneManager::getInstance().createScene("default");
         Camera.setWindowSize(WIDTH, HEIGHT);
         WorldSimulation simulation = WorldSimulation::getInstance();
         PythonBridge::getInstance();
@@ -195,6 +198,7 @@ public:
     static inline float DeltaTime{}, Time{};
     static inline bool GameMode{false};
     static inline WorldCamera Camera{true};
+    static inline Scene* ActiveScene;
 private:
     void keyboardInputHandling() {
         if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

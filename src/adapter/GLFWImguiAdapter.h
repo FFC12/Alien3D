@@ -28,7 +28,9 @@ public:
         config.OversampleH = 2;
         config.OversampleV = 1;
         config.GlyphExtraSpacing.x = 1.0f;
-        io.Fonts->AddFontFromFileTTF("../res/fonts/Roboto/Roboto-Medium.ttf", 15.0f);
+        auto path = RESOURCE_PATH("fonts/Roboto/Roboto-Medium.ttf");
+        auto pathCStr = path.c_str();
+        io.Fonts->AddFontFromFileTTF(pathCStr, 15.0f);
         ImGui::StyleColorsDark();
 //        SetTheme();
         SetTheme2();

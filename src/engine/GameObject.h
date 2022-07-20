@@ -10,8 +10,6 @@
 #include <gfx/Shader.h>
 #include <gfx/WorldCamera.h>
 #include <engine/Model.h>
-
-// TODO: < Mesh >
 #include <gfx/Buffer.h>
 #include <engine/Transform.h>
 
@@ -30,7 +28,15 @@ class WorldSimulation;
 
 class Sprite;
 
+class Scene;
+
+class SceneManager;
+
 class GameObject {
+    friend class Scene;
+
+    friend class SceneManager;
+
     friend class RenderQueue;
 
     friend class Sprite;
@@ -98,10 +104,10 @@ public:
 
     void duplicate(const std::string &n, GameObject &o);
 
-    static std::unique_ptr<GameObject> Create(const std::string &name);
+    static std::unique_ptr<GameObject> Create(const std::string &name); 
 
+    static inline std::unordered_map<std::string, GameObject*> GameobjectList{};
 
-    // TODO: add getComponent function..
 protected:
     virtual void drawCall();
 
@@ -132,7 +138,6 @@ protected:
 
     static inline bool WidgetInitialized{false};
     static inline bool WireframeMode{false};
-    static inline std::unordered_map<std::string, GameObject *> GameobjectList{};
 };
 
 #endif //ALIEN3D_GAMEOBJECT_H
